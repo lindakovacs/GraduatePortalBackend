@@ -1,28 +1,33 @@
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
-const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const cors = require("cors");
 
 const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
+const testRouter = require("./routes/test");
 
 const app = express();
+app.use(cors()); // TODO try to find another
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "jade");
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
+app.use("/api/test", testRouter);
+
+// Handles all routes so you do not get a not found error
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "public", "index.html"));
+});
 
 // catch 404 and forward to error handler
+// TODO replace with a JSON style 404
 app.use((req, res, next) => {
   next(createError(404));
 });
