@@ -83,3 +83,17 @@ typings/
 
 #DynamoDB Local files 
 .dynamodb/ 
+
+# os generated
+.DS_Store
+Thumbs.db
+
+# workspace
+.project
+.vscode/*
+!/.vscode/launch.json
+*.code*
+.idea
+.sublime*
+/atom-shell/
+*NOCOMMIT*

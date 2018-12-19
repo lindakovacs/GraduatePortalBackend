@@ -1,3 +1,4 @@
+const config = require("./config");
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
@@ -8,10 +9,7 @@ const indexRouter = require("./routes/index");
 const testRouter = require("./routes/test");
 
 const app = express();
-app.use(cors()); // TODO try to find another
-
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
+if (config.useCors) app.use(cors());
 
 app.use(logger("dev"));
 app.use(express.json());

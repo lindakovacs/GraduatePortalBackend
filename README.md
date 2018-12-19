@@ -1,8 +1,19 @@
-# To run the app in development
+# Getting Started
+
+Install package dependencies with `npm install`.
+
+Open the _.env.example_ file, save as _.env_ and edit the environment variables as needed.
+
+To start the application, run:
 
 ```shell
-DEBUG=elastic-node-test:* npm start
+nodemon dev
 ```
+
+# Contributors
+
+- Jamal Taylor
+- Matina Patsos
 
 # Resources
 
