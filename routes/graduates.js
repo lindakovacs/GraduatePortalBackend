@@ -3,7 +3,6 @@ const router = express.Router();
 const mysql = require("mysql");
 const config = require("../config");
 const compileTableData = data => {
-  console.log("test");
   const results = data.reduce((acc, graduate) => {
     if (!acc[graduate.graduate_id]) {
       acc[graduate.graduate_id] = {
@@ -40,11 +39,9 @@ const connection = mysql.createConnection({
 });
 
 connection.connect(err => {
-  console.log("err");
-  console.log(err);
+  if (err) throw err;
 });
 
-console.log(connection.state);
 router.get("/", (req, res) => {
   connection.query(
     "select  * from graduates INNER JOIN skills on graduates.graduate_id = skills.graduate_id;",
