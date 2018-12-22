@@ -6,7 +6,7 @@ router.post("/", (req, res, next) => {
   res.send({
     isSuccess: 1,
     retMessage: "Success",
-    message: "Hello World"
+    message: "Hellos World"
   });
 });
 
