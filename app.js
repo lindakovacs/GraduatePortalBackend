@@ -9,6 +9,7 @@ const indexRouter = require("./routes/index");
 
 const testRouter = require("./routes/test");
 const graduates = require("./routes/graduates");
+const loginRouter = require("./routes/login");
 
 const app = express();
 if (config.useCors) app.use(cors());
@@ -23,6 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/", indexRouter);
 app.use("/api/test", testRouter);
 app.use("/api/graduates", graduates);
+app.use("/api/login", loginRouter);
 
 // Handles all routes so you do not get a not found error
 app.get("*", (req, res) => {
