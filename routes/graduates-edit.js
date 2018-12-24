@@ -11,6 +11,9 @@ const connection = mysql.createConnection({
   database: config.dbName
 });
 
-router.put("/", (req, res) => {});
+router.put("/", (req, res) => {
+  console.log(req);
+  console.log(res);
+});
 
 module.exports = router;

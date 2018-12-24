@@ -39,7 +39,12 @@ const connection = mysql.createConnection({
 });
 
 connection.connect(err => {
-  if (err) throw err;
+  if (err) {
+    // TODO log
+    console.log("Could not connect to database: ", err);
+    // TODO figure out how to catch this
+    throw Error("Could not connect to database");
+  }
 });
 
 router.get("/", (req, res) => {
