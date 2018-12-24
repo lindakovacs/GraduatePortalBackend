@@ -1,5 +1,15 @@
 const express = require("express");
 const router = express.Router();
+const mysql = require("mysql");
+const config = require("../config");
+
+const connection = mysql.createConnection({
+  host: config.dbHost,
+  user: config.dbUser,
+  port: "3306",
+  password: config.dbPassword,
+  database: config.dbName
+});
 
 router.post("/", (req, res) => {
   const sql = `INSERT INTO graduates (first_name, last_name, is_active, phone, story, year_of_graduate, email, github,linkedin, website,image,resume)
@@ -41,6 +51,11 @@ router.post("/", (req, res) => {
           const sql = "insert INTO skills (graduate_id,name) VALUES (?,?)";
           connection.query(sql, [graduate_id, skill]);
         }
+        res.setHeader("Content-Type", "application/json");
+        res.status(200).send({
+          success: 1,
+          retMessage: "Success"
+        });
       }
     }
   );
