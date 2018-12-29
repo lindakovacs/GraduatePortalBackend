@@ -19,7 +19,7 @@ const compileTableData = data => {
           linkedin: graduate.linkedin,
           website: ""
         },
-        yearOfGraduate: graduate.year_of_graduate,
+        yearOfGrad: graduate.year_of_graduate,
         resume: graduate.resume,
         story: graduate.story
       };
