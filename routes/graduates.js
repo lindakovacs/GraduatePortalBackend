@@ -11,10 +11,10 @@ const compileTableData = data => {
         lastName: graduate.last_name,
         image: graduate.image,
         skills: [],
-        email: graduate.email,
         isActive: graduate.is_active,
         phone: graduate.phone,
         links: {
+          email: graduate.email,
           github: graduate.github,
           linkedin: graduate.linkedin,
           website: ""
