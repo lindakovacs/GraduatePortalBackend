@@ -10,7 +10,7 @@ router.put("/", (req, res) => {
     if (!fileObj) {
       return res.status(400).send({
         isSuccess: 0,
-        retMessage: "Invalid request",
+        message: "Invalid request",
         token: ""
       });
     }
@@ -19,14 +19,14 @@ router.put("/", (req, res) => {
       .then(data =>
         res.send({
           isSuccess: 1,
-          retMessage: "Success",
+          message: "Success",
           imageUrl: data.imageUrl
         })
       )
       .catch(() => {
         res.status(500).send({
           isSuccess: 0,
-          retMessage: "Error uploading image",
+          message: "Error uploading image",
           imageUrl: ""
         });
       });
@@ -35,7 +35,7 @@ router.put("/", (req, res) => {
     console.log(e);
     return res.status(500).send({
       isSuccess: 0,
-      retMessage: "An unexpected error occurred",
+      message: "An unexpected error occurred",
       imageUrl: ""
     });
   }

@@ -11,7 +11,7 @@ router.post("/", (req, res, next) => {
       // TODO log
       return res.status(400).send({
         isSuccess: 0,
-        retMessage: "Invalid request",
+        message: "Invalid request",
         token: ""
       });
     }
@@ -43,7 +43,7 @@ router.post("/", (req, res, next) => {
           // Invalid username
           return res.status(200).send({
             isSuccess: 0,
-            retMessage: "Invalid username or password",
+            message: "Invalid username or password",
             token: ""
           });
         }
@@ -54,7 +54,7 @@ router.post("/", (req, res, next) => {
           const token = jwt.sign({ sub: user.user_id }, config.jwtSecret);
           return res.status(200).send({
             isSuccess: 1,
-            retMessage: "Success",
+            message: "Success",
             token
           });
         } else {
@@ -62,7 +62,7 @@ router.post("/", (req, res, next) => {
           // TODO unencrypt
           return res.status(200).send({
             isSuccess: 0,
-            retMessage: "Invalid username or password",
+            message: "Invalid username or password",
             token: ""
           });
         }
@@ -73,7 +73,7 @@ router.post("/", (req, res, next) => {
     console.log(e);
     return res.status(500).send({
       isSuccess: 0,
-      retMessage: "An unexpected error occurred",
+      message: "An unexpected error occurred",
       token: ""
     });
   }
