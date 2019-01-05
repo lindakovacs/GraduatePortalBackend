@@ -82,7 +82,10 @@ typings/
 .fusebox/
 
 #DynamoDB Local files 
-.dynamodb/ 
+.dynamodb/
+
+# zip files
+*.zip
 
 # os generated
 .DS_Store

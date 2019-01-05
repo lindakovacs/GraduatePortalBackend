@@ -14,6 +14,7 @@ const graduatesNew = require("./routes/graduates-new");
 const graduatesEdit = require("./routes/graduates-edit");
 const loginRouter = require("./routes/login");
 const uploadImageRouter = require("./routes/uploadImage");
+const downloadResumesRouter = require("./routes/downloadResumes");
 
 const app = express();
 if (config.useCors) app.use(cors());
@@ -33,6 +34,7 @@ app.use("/api/graduates/new", graduatesNew);
 app.use("/api/graduates/:id/edit", graduatesEdit);
 app.use("/api/login", loginRouter);
 app.use("/api/upload/image", uploadImageRouter);
+app.use("/api/download/resumes", downloadResumesRouter);
 
 // Handles all routes so you do not get a not found error
 app.get("*", (req, res) => {
