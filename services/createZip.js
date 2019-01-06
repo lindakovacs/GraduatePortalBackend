@@ -5,7 +5,25 @@ const archiver = require("archiver");
 
 const zipFilePath = join(`${__dirname}/../AlbanyCanCodeResumes.zip`);
 
-const createZip = urls => {
+const readFiles = urls => {
+  console.log("readFiles");
+  return new Promise((resolve, reject) => {
+    let files = [];
+    urls.forEach((url, idx) => {
+      const pieces = url.split("/");
+      const fileName = pieces[pieces.length - 1];
+      axios
+        .get(url)
+        .then(res => {
+          files.push([fileName, res.data]);
+          if ((idx = files.length - 1)) resolve(files);
+        })
+        .catch(err => reject(err));
+    });
+  });
+};
+
+const createZipFile = files => {
   return new Promise((resolve, reject) => {
     const archive = archiver("zip", { store: true });
     const output = fs.createWriteStream(zipFilePath);
@@ -41,25 +59,25 @@ const createZip = urls => {
     });
 
     archive.on("entry", () => {
-      console.log("Achived", urls[numOfFilesWritten]);
+      console.log("Achived", files[numOfFilesWritten]);
       numOfFilesWritten += 1;
-      if (numOfFilesWritten === urls.length) archive.finalize();
+      if (numOfFilesWritten === files.length) archive.finalize();
     });
 
     archive.pipe(output);
 
-    // setTimeout(() => {
-    // TODO kill setTimeout
-    urls.forEach((url, idx) => {
-      const pieces = url.split("/");
-      const fileName = pieces[pieces.length - 1];
-      axios
-        .get(url)
-        .then(res => res.data)
-        .then(data => archive.append(data, { name: fileName }))
-        .catch(err => reject(err));
+    files.forEach(([fileName, data]) => {
+      archive.append(data, { name: fileName });
     });
-    // }, 2000);
+  });
+};
+
+const createZip = urls => {
+  return new Promise((resolve, reject) => {
+    return readFiles(urls)
+      .then(files => createZipFile(files))
+      .then(zipFilePath => resolve(zipFilePath))
+      .catch(err => reject(err));
   });
 };
 
