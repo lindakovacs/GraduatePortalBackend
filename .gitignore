@@ -85,6 +85,7 @@ typings/
 .dynamodb/
 
 # zip files
+./*.pdf
 *.zip
 
 # os generated

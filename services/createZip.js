@@ -8,11 +8,15 @@ const zipFilePath = join(`${__dirname}/../AlbanyCanCodeResumes.zip`);
 async function readFiles(urls) {
   return new Promise((resolve, reject) => {
     let files = [];
-    urls.forEach((url, idx) => {
+    urls.forEach(url => {
       const pieces = url.split("/");
       const fileName = pieces[pieces.length - 1];
-      axios
-        .get(url)
+      axios;
+      axios({
+        method: "get",
+        url,
+        responseType: "stream"
+      })
         .then(res => {
           files.push([fileName, res.data]);
           if (files.length === urls.length) resolve(files);
