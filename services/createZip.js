@@ -5,8 +5,7 @@ const archiver = require("archiver");
 
 const zipFilePath = join(`${__dirname}/../AlbanyCanCodeResumes.zip`);
 
-const readFiles = urls => {
-  console.log("readFiles");
+async function readFiles(urls) {
   return new Promise((resolve, reject) => {
     let files = [];
     urls.forEach((url, idx) => {
@@ -16,18 +15,17 @@ const readFiles = urls => {
         .get(url)
         .then(res => {
           files.push([fileName, res.data]);
-          if ((idx = files.length - 1)) resolve(files);
+          if (files.length === urls.length) resolve(files);
         })
         .catch(err => reject(err));
     });
   });
-};
+}
 
-const createZipFile = files => {
+async function createZipFile(files) {
   return new Promise((resolve, reject) => {
     const archive = archiver("zip", { store: true });
     const output = fs.createWriteStream(zipFilePath);
-    let numOfFilesWritten = 0;
 
     output.on("error", err => {
       return reject(err);
@@ -58,27 +56,20 @@ const createZipFile = files => {
       return reject(err);
     });
 
-    archive.on("entry", () => {
-      console.log("Achived", files[numOfFilesWritten]);
-      numOfFilesWritten += 1;
-      if (numOfFilesWritten === files.length) archive.finalize();
-    });
-
     archive.pipe(output);
 
-    files.forEach(([fileName, data]) => {
-      archive.append(data, { name: fileName });
+    files.forEach(([name, data]) => {
+      archive.append(data, { name });
     });
-  });
-};
 
-const createZip = urls => {
-  return new Promise((resolve, reject) => {
-    return readFiles(urls)
-      .then(files => createZipFile(files))
-      .then(zipFilePath => resolve(zipFilePath))
-      .catch(err => reject(err));
+    archive.finalize();
   });
-};
+}
+
+async function createZip(urls) {
+  const files = await readFiles(urls);
+  await createZipFile(files);
+  return zipFilePath;
+}
 
 module.exports = createZip;
