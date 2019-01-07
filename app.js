@@ -31,7 +31,7 @@ app.use("/", indexRouter);
 app.use("/api/test", testRouter);
 app.use("/api/graduates", graduates);
 app.use("/api/graduates/new", graduatesNew);
-app.use("/api/graduates/:id/edit", graduatesEdit);
+app.use("/api/graduates/Edit", graduatesEdit);
 app.use("/api/login", loginRouter);
 app.use("/api/upload/image", uploadImageRouter);
 app.use("/api/download/resumes", downloadResumesRouter);

@@ -22,7 +22,7 @@ router.post("/", (req, res) => {
       req.body.isActive,
       req.body.phone,
       req.body.story,
-      req.body.yearOfGraduate,
+      req.body.yearOfGrad,
       req.body.email,
       req.body.github,
       req.body.linkedin,
@@ -32,8 +32,12 @@ router.post("/", (req, res) => {
     ],
     (err, result) => {
       if (err) {
+        return res.status(500).send({
+          isSuccess: 0,
+          retMessage: "An unexpected error occurred",
+          err
+        });
         // some error occured
-        return;
       } else {
         let count = 0;
         let graduate_id = null;
@@ -51,6 +55,7 @@ router.post("/", (req, res) => {
           const sql = "insert INTO skills (graduate_id,name) VALUES (?,?)";
           connection.query(sql, [graduate_id, skill]);
         }
+
         res.setHeader("Content-Type", "application/json");
         res.status(200).send({
           success: 1,
