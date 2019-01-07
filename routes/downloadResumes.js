@@ -10,12 +10,12 @@ router.get("/", (req, res, next) => {
   ];
   return createZip(urls)
     .then(file => res.download(file))
-    .catch(() => {
-      // TODO log
+    .catch(err => {
       res.status(500).send({
         isSuccess: 0,
         message: "An unexpected error occurred"
       });
+      next(err);
     });
 });
 

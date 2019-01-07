@@ -3,60 +3,77 @@ const { join } = require("path");
 const axios = require("axios");
 const archiver = require("archiver");
 
-const createZip = urls => {
+const zipFilePath = join(`${__dirname}/../AlbanyCanCodeResumes.zip`);
+
+async function readFiles(urls) {
   return new Promise((resolve, reject) => {
-    const zipFilePath = join(`${__dirname}/../AlbanyCanCodeResumes.zip`);
-    const output = fs.createWriteStream(zipFilePath);
-    const archive = archiver("zip", { store: true });
-
-    try {
-      output.on("close", () => {
-        console.log(archive.pointer() + " total bytes");
-        console.log("File written to", zipFilePath);
-        console.log(
-          "archiver has been finalized and the output file descriptor has closed."
-        );
-        resolve(zipFilePath);
-      });
-
-      output.on("end", () => {
-        console.log("Data has been drained");
-      });
-
-      archive.on("warning", err => {
-        if (err.code === "ENOENT") {
-          // log warning
-          console.log("warning");
-        } else {
-          // throw error
-          throw err;
-        }
-      });
-
-      archive.pipe(output);
-
-      archive.on("error", err => {
-        throw err;
-      });
-    } catch (e) {
-      // TODO log
-      console.log(e);
-      reject();
-    }
-
-    urls.forEach((url, idx) => {
+    let files = [];
+    urls.forEach(url => {
       const pieces = url.split("/");
       const fileName = pieces[pieces.length - 1];
-      axios
-        .get(url)
-        .then(res => res.data)
-        .then(data => archive.append(data, { name: fileName }))
-        .then(() => {
-          if (idx === urls.length - 1) archive.finalize();
+      axios;
+      axios({
+        method: "get",
+        url,
+        responseType: "stream"
+      })
+        .then(res => {
+          files.push([fileName, res.data]);
+          if (files.length === urls.length) resolve(files);
         })
-        .catch(() => reject());
+        .catch(err => reject(err));
     });
   });
-};
+}
+
+async function createZipFile(files) {
+  return new Promise((resolve, reject) => {
+    const archive = archiver("zip", { store: true });
+    const output = fs.createWriteStream(zipFilePath);
+
+    output.on("error", err => {
+      return reject(err);
+    });
+
+    output.on("end", () => {
+      return reject(new Error("Data has been drained"));
+    });
+
+    output.on("close", () => {
+      // TODO log to server
+      console.log(archive.pointer() + " total bytes");
+      console.log("File written to", zipFilePath);
+      console.log(
+        "archiver has been finalized and the output file descriptor has closed."
+      );
+      return resolve(zipFilePath);
+    });
+
+    archive.on("warning", err => {
+      if (err.code === "ENOENT") {
+        // TODO log
+        console.log("warning");
+      } else return reject(err);
+    });
+
+    archive.on("error", err => {
+      return reject(err);
+    });
+
+    archive.pipe(output);
+
+    files.forEach(([name, data]) => {
+      archive.append(data, { name });
+    });
+
+    archive.finalize();
+  });
+}
+
+async function createZip(urls) {
+  const files = await readFiles(urls);
+  await createZipFile(files);
+  return zipFilePath;
+}
 
 module.exports = createZip;
