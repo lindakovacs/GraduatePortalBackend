@@ -17,7 +17,7 @@ const compileTableData = data => {
           email: graduate.email,
           github: graduate.github,
           linkedin: graduate.linkedin,
-          website: ""
+          website: graduate.website
         },
         yearOfGrad: graduate.year_of_graduate,
         resume: graduate.resume,
