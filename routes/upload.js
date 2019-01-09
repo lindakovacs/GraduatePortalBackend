@@ -1,8 +1,10 @@
 const express = require("express");
 const upload = require("../services/upload");
 const router = express.Router();
+const expressJwt = require("express-jwt");
+const config = require("../config");
 
-const s3Folder = "resumes";
+router.use(expressJwt({ secret: config.jwtSecret }));
 
 const handleUpload = (s3Folder, req, res) => {
   try {

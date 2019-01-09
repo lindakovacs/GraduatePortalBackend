@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const mysql = require("mysql");
+const expressJwt = require("express-jwt");
 const config = require("../config");
+
+router.use(expressJwt({ secret: config.jwtSecret }));
 
 const connection = mysql.createConnection({
   host: config.dbHost,
