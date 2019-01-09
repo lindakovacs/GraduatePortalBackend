@@ -7,7 +7,7 @@ const fs = require("fs");
 const config = require("../config");
 
 const region = config.s3UploadRegion;
-const s3Url = `https://s3.${region}.amazonaws.com/`;
+const s3Url = `https://s3.${region}.amazonaws.com`;
 const bucket = config.s3UploadBucket;
 
 aws.config.update({
@@ -32,11 +32,7 @@ const upload = (s3Folder, fileObj) => {
     const key = `${s3Folder}/${fileName}`;
 
     fs.readFile(path, (err, body) => {
-      if (err) {
-        // TODO log
-        console.log("Error uploading file");
-        resolve();
-      }
+      if (err) reject(new Error("Error reading file to upload"));
 
       const s3Params = {
         Bucket: bucket,
@@ -46,14 +42,11 @@ const upload = (s3Folder, fileObj) => {
         Body: body
       };
       s3.putObject(s3Params, (err, data) => {
-        if (err) {
-          // TODO log
-          console.log("Error uploading file to S3");
-          resolve();
-        }
+        if (err) reject(new Error("Error uploading file to S3"));
+        console.log(data);
         return resolve({
           ...data,
-          imageUrl: `${s3Url}/${bucket}/${key}`
+          url: `${s3Url}/${bucket}/${key.replace(" ", "+")}`
         });
       });
     });

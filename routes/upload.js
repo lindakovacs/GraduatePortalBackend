@@ -2,16 +2,16 @@ const express = require("express");
 const upload = require("../services/upload");
 const router = express.Router();
 
-const s3Folder = "profile-images";
+const s3Folder = "resumes";
 
-router.put("/", (req, res) => {
+const handleUpload = (s3Folder, req, res) => {
   try {
     const fileObj = req.files.image;
     if (!fileObj) {
       return res.status(400).send({
         isSuccess: 0,
         message: "Invalid request",
-        token: ""
+        url: ""
       });
     }
 
@@ -20,25 +20,28 @@ router.put("/", (req, res) => {
         res.send({
           isSuccess: 1,
           message: "Success",
-          imageUrl: data.imageUrl
+          url: data.url
         })
       )
-      .catch(() => {
+      .catch(err => {
         res.status(500).send({
           isSuccess: 0,
-          message: "Error uploading image",
-          imageUrl: ""
+          message: `Error uploading to ${s3Folder}`,
+          url: ""
         });
+        throw err;
       });
-  } catch (e) {
-    // TODO log
-    console.log(e);
-    return res.status(500).send({
+  } catch (err) {
+    res.status(500).send({
       isSuccess: 0,
       message: "An unexpected error occurred",
-      imageUrl: ""
+      url: ""
     });
+    throw err;
   }
-});
+};
+
+router.put("/image", handleUpload.bind(null, "profile-images"));
+router.put("/resume", handleUpload.bind(null, "resumes"));
 
 module.exports = router;

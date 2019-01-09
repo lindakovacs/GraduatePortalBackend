@@ -13,7 +13,7 @@ const graduates = require("./routes/graduates");
 const graduatesNew = require("./routes/graduates-new");
 const graduatesEdit = require("./routes/graduates-edit");
 const loginRouter = require("./routes/login");
-const uploadImageRouter = require("./routes/uploadImage");
+const uploadRouter = require("./routes/upload");
 const downloadResumesRouter = require("./routes/downloadResumes");
 
 const app = express();
@@ -33,7 +33,7 @@ app.use("/api/graduates", graduates);
 app.use("/api/graduates/new", graduatesNew);
 app.use("/api/graduates/:id/edit", graduatesEdit);
 app.use("/api/login", loginRouter);
-app.use("/api/upload/image", uploadImageRouter);
+app.use("/api/upload/", uploadRouter);
 app.use("/api/download/resumes", downloadResumesRouter);
 
 // Handles all routes so you do not get a not found error
