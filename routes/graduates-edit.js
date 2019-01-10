@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const methodNotAllowed = require("../errors/methodNotAllowed");
 const mysql = require("mysql");
-const expressJwt = require("express-jwt");
+const { auth, authErrorHandler } = require("../middleware/auth");
 const config = require("../config");
 
-router.use(expressJwt({ secret: config.jwtSecret }));
+router.use(auth);
+router.use(authErrorHandler);
 
 const connection = mysql.createConnection({
   host: config.dbHost,
@@ -40,17 +42,19 @@ router.put("/", (req, res) => {
       if (err) {
         return res.status(500).send({
           isSuccess: 0,
-          retMessage: "An unexpected error occurred",
+          message: "An unexpected error occurred",
           err
         });
       } else {
         return res.status(200).send({
           isSuccess: 1,
-          retMessage: "Sucess"
+          message: "Success"
         });
       }
     }
   );
 });
+
+router.all("/", methodNotAllowed);
 
 module.exports = router;

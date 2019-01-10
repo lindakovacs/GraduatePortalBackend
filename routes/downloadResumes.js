@@ -1,10 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const methodNotAllowed = require("../errors/methodNotAllowed");
 const createZip = require("../services/createZip");
-const expressJwt = require("express-jwt");
-const config = require("../config");
-
-router.use(expressJwt({ secret: config.jwtSecret }));
 
 router.get("/", (req, res, next) => {
   // TODO do not hardcode
@@ -22,5 +19,7 @@ router.get("/", (req, res, next) => {
       next(err);
     });
 });
+
+router.all("/", methodNotAllowed);
 
 module.exports = router;

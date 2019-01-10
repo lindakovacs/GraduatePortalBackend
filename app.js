@@ -14,6 +14,7 @@ const graduatesEditRouter = require("./routes/graduates-edit");
 const loginRouter = require("./routes/login");
 const uploadRouter = require("./routes/upload");
 const downloadResumesRouter = require("./routes/downloadResumes");
+const generalApiRouter = require("./routes/generalApi");
 
 const app = express();
 if (config.useCors) app.use(cors());
@@ -26,13 +27,14 @@ app.use(bodyParser.json());
 app.use(formData.parse());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use("/", indexRouter);
-app.use("/api/graduates", graduatesRouter);
 app.use("/api/graduates/new", graduatesNewRouter);
-app.use("/api/graduates/Edit", graduatesEditRouter);
+app.use("/api/graduates/edit", graduatesEditRouter);
+app.use("/api/graduates", graduatesRouter);
 app.use("/api/login", loginRouter);
 app.use("/api/upload/", uploadRouter);
 app.use("/api/download/resumes", downloadResumesRouter);
+app.use("/api", generalApiRouter);
+app.use("/", indexRouter);
 
 // Handles all routes so you do not get a not found error
 app.get("*", (req, res) => {

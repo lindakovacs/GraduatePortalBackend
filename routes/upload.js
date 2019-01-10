@@ -1,10 +1,11 @@
 const express = require("express");
 const upload = require("../services/upload");
 const router = express.Router();
-const expressJwt = require("express-jwt");
-const config = require("../config");
+const methodNotAllowed = require("../errors/methodNotAllowed");
+const { auth, authErrorHandler } = require("../middleware/auth");
 
-router.use(expressJwt({ secret: config.jwtSecret }));
+router.use(auth);
+router.use(authErrorHandler);
 
 const handleUpload = (s3Folder, req, res) => {
   try {
@@ -44,6 +45,9 @@ const handleUpload = (s3Folder, req, res) => {
 };
 
 router.put("/image", handleUpload.bind(null, "profile-images"));
+router.all("/image", methodNotAllowed);
+
 router.put("/resume", handleUpload.bind(null, "resumes"));
+router.all("/resume", methodNotAllowed);
 
 module.exports = router;

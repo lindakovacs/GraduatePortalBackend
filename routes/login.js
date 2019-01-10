@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const methodNotAllowed = require("../errors/methodNotAllowed");
 const jwt = require("jsonwebtoken");
 const mysql = require("mysql");
 const config = require("../config");
@@ -79,6 +80,6 @@ router.post("/", (req, res, next) => {
   }
 });
 
-// TODO method not allowed
+router.all("/", methodNotAllowed);
 
 module.exports = router;

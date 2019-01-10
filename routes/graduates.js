@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const methodNotAllowed = require("../errors/methodNotAllowed");
 const mysql = require("mysql");
 const config = require("../config");
 const compileTableData = data => {
@@ -51,15 +52,17 @@ router.get("/", (req, res) => {
   connection.query(
     "select  * from graduates INNER JOIN skills on graduates.graduate_id = skills.graduate_id;",
     (err, result, fields) => {
-      results = compileTableData(result);
+      const results = compileTableData(result);
       res.setHeader("Content-Type", "application/json");
       res.status(200).send({
-        success: 1,
-        retMessage: "Success",
+        isSuccess: 1,
+        message: "Success",
         profiles: results
       });
     }
   );
 });
+
+router.all("/", methodNotAllowed);
 
 module.exports = router;

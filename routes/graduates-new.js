@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const methodNotAllowed = require("../errors/methodNotAllowed");
 const mysql = require("mysql");
-const expressJwt = require("express-jwt");
+const { auth, authErrorHandler } = require("../middleware/auth");
 const config = require("../config");
 
-router.use(expressJwt({ secret: config.jwtSecret }));
+router.use(auth);
+router.use(authErrorHandler);
 
 const connection = mysql.createConnection({
   host: config.dbHost,
@@ -68,5 +70,7 @@ router.post("/", (req, res) => {
     }
   );
 });
+
+router.all("/", methodNotAllowed);
 
 module.exports = router;
