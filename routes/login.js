@@ -8,7 +8,7 @@ const config = require("../config");
 router.post("/", (req, res, next) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password) {
+    if (username === undefined || password === undefined) {
       // TODO log
       return res.status(400).send({
         isSuccess: 0,
