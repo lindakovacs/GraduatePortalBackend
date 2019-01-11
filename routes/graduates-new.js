@@ -64,7 +64,8 @@ router.post("/", (req, res) => {
         res.setHeader("Content-Type", "application/json");
         res.status(200).send({
           success: 1,
-          retMessage: "Success"
+          retMessage: "Success",
+          graduateId: graduate_id
         });
       }
     }
