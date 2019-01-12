@@ -10,6 +10,7 @@
     "archiver": "^3.0.0",
     "aws-sdk": "^2.382.0",
     "axios": "^0.18.0",
+    "bcrypt": "3.0.3",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "debug": "^4.1.0",
@@ -21,5 +22,8 @@
     "jsonwebtoken": "^8.4.0",
     "morgan": "^1.9.1",
     "mysql": "^2.16.0"
+  },
+  "devDependencies": {
+    "minimist": "^1.2.0"
   }
 }
