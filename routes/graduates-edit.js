@@ -15,10 +15,54 @@ const connection = mysql.createConnection({
   password: config.dbPassword,
   database: config.dbName
 });
-const sql = `INSERT INTO graduates (first_name, last_name, is_active, phone, story, year_of_graduate, email, github,linkedin, website,image,resume)
-              VALUES( ?, ?, ?, ?, ?, ?,?,?,?,?,?,?)`;
+
+getUserSkills = graduateId => {
+  const sql = "Select name FROM skills WHERE graduate_id = ?";
+
+  return new Promise((resolve, reject) => {
+    connection.query(sql, [graduateId], (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      const skills = result.reduce((acc, skill, index) => {
+        acc.push(skill.name);
+        return acc;
+      }, []);
+      resolve(skills);
+      if (err) {
+        reject(err);
+      }
+    });
+  });
+};
+
+updateUserSkills = (skills, graduateId, orginalSkills, res) => {
+  let count = 0;
+  console.log(skills);
+  const sql = `UPDATE skills SET name = ? WHERE graduate_id = ?  AND name = ?`;
+
+  while (skills.length !== 0) {
+    skill = skills.shift();
+    orginalSkill = orginalSkills.shift();
+    console.log(skill);
+    connection.query(sql, [orginalSkill, graduateId, skill], (err, result) => {
+      if (err) {
+        return res.status(500).send({
+          isSuccess: 0,
+          message: "An unexpected error occurred"
+        });
+      } else {
+        console.log("success");
+      }
+    });
+  }
+  return res.status(200).send({
+    isSuccess: 1,
+    message: "Success"
+  });
+};
+
 router.put("/", (req, res) => {
-  //UPDATE `graduates_dev`.`graduates` SET `is_active` = '0', `phone` = '555-555-5550' WHERE (`graduate
   const sql =
     "UPDATE graduates  SET first_name = ?, last_name = ?, is_active = ?, phone = ?, story = ?, year_of_graduate = ?, email = ?, github = ?, linkedin = ?, website = ?, image = ?, resume = ?  WHERE graduate_id = ? ";
   connection.query(
@@ -36,19 +80,20 @@ router.put("/", (req, res) => {
       req.body.website,
       req.body.image,
       req.body.resume,
-      req.body.graduateId
+      req.body.graduateId,
+      req.body.updateUserSkills
     ],
     (err, result) => {
       if (err) {
         return res.status(500).send({
           isSuccess: 0,
-          message: "An unexpected error occurred",
-          err
+          message: "An unexpected error occurred"
         });
       } else {
-        return res.status(200).send({
-          isSuccess: 1,
-          message: "Success"
+        const skills = getUserSkills(req.body.graduateId);
+        console.log(req.body.skills);
+        skills.then(skill => {
+          updateUserSkills(skill, req.body.graduateId, req.body.skills, res);
         });
       }
     }
