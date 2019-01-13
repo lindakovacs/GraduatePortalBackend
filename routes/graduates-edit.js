@@ -73,7 +73,7 @@ router.put("/", (req, res) => {
       req.body.isActive,
       req.body.phone,
       req.body.story,
-      req.body.yearOfGraduate,
+      req.body.yearOfGrad,
       req.body.email,
       req.body.github,
       req.body.linkedin,
