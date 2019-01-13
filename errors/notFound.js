@@ -1,5 +1,5 @@
 const notFound = (req, res) => {
-  return res.status(405).send({
+  return res.status(404).send({
     isSuccess: 0,
     message: "Page Not Found. Please check your URL"
   });
