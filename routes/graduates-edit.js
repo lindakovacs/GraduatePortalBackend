@@ -39,6 +39,7 @@ router.put("/", (req, res) => {
       req.body.graduateId
     ],
     (err, result) => {
+      console.log("result");
       if (err) {
         return res.status(500).send({
           isSuccess: 0,
@@ -46,6 +47,8 @@ router.put("/", (req, res) => {
           err
         });
       } else {
+        console.log("test");
+        console.log(req.body.skills);
         return res.status(200).send({
           isSuccess: 1,
           message: "Success"
