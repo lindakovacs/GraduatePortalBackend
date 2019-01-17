@@ -39,8 +39,7 @@ router.post("/", (req, res) => {
       if (err) {
         return res.status(500).send({
           isSuccess: 0,
-          retMessage: "An unexpected error occurred",
-          err
+          retMessage: "An unexpected error occurred"
         });
         // some error occured
       } else {
@@ -65,7 +64,7 @@ router.post("/", (req, res) => {
         res.status(200).send({
           success: 1,
           retMessage: "Success",
-          graduateId: graduate_id
+          graduateId: result.insertId
         });
       }
     }
