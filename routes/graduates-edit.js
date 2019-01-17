@@ -36,30 +36,74 @@ getUserSkills = graduateId => {
   });
 };
 
+getUniqueSkills = (existingSkills, newSkills) => {
+  const combinedSkills = newSkills.concat(existingSkills);
+  const uniqueSkills = [];
+  const uniqueSkillsObj = combinedSkills.reduce((acc, skill) => {
+    acc[skill] = acc[skill] ? (acc[skill] += 1) : (acc[skill] = 1);
+    return acc;
+  }, {});
+
+  for (let key in uniqueSkillsObj) {
+    uniqueSkillsObj[key] < 2 && uniqueSkills.push(key);
+  }
+
+  return uniqueSkills;
+};
+
 updateUserSkills = (skills, graduateId, orginalSkills, res) => {
-  let count = 0;
-  console.log(skills);
+  skills = [...skills].filter(skill => skill !== "");
+  orginalSkills = [...orginalSkills].filter(skill => skill !== "");
+
   const sql = `UPDATE skills SET name = ? WHERE graduate_id = ?  AND name = ?`;
 
   while (skills.length !== 0) {
     skill = skills.shift();
     orginalSkill = orginalSkills.shift();
-    console.log(skill);
-    connection.query(sql, [orginalSkill, graduateId, skill], (err, result) => {
+
+    if (orginalSkill) {
+      connection.query(
+        sql,
+        [orginalSkill, graduateId, skill],
+        (err, result) => {
+          if (err) {
+            return res.status(500).send({
+              isSuccess: 0,
+              message: "An unexpected error occurred",
+              err
+            });
+          }
+        }
+      );
+    }
+  }
+  return true;
+};
+
+insertSkills = (skills, graduate_id) => {
+  while (skills.length !== 0) {
+    const skill = skills.shift();
+    const sql = "insert INTO skills (graduate_id,name) VALUES (?,?)";
+    connection.query(sql, [graduate_id, skill], (err, result) => {
       if (err) {
-        return res.status(500).send({
-          isSuccess: 0,
-          message: "An unexpected error occurred"
-        });
-      } else {
-        console.log("success");
+        return false;
       }
     });
   }
-  return res.status(200).send({
-    isSuccess: 1,
-    message: "Success"
-  });
+  return true;
+};
+
+deleteSkills = (skills, graduate_id) => {
+  while (skills.length !== 0) {
+    const skillToDelete = skills.shift();
+    const sql = "DELETE from skills where graduate_id = ? AND name = ?";
+    connection.query(sql, [graduate_id, skillToDelete], (err, result) => {
+      if (err) {
+        return true;
+      }
+    });
+  }
+  return true;
 };
 
 router.put("/", (req, res) => {
@@ -91,9 +135,31 @@ router.put("/", (req, res) => {
         });
       } else {
         const skills = getUserSkills(req.body.graduateId);
-        console.log(req.body.skills);
+
         skills.then(skill => {
           updateUserSkills(skill, req.body.graduateId, req.body.skills, res);
+
+          if (req.body.skills.length > skill.length) {
+            const skills = getUniqueSkills(req.body.skills, skill);
+            if (skills) {
+              const response = insertSkills(skills, req.body.graduateId);
+              if (response) {
+                res.status(200).send({
+                  isSuccess: 1,
+                  message: "Success"
+                });
+              }
+            }
+          } else if (req.body.skills.length < skill.length) {
+            const skills = getUniqueSkills(req.body.skills, skill);
+            const response = deleteSkills(skills, req.body.graduateId);
+            if (response) {
+              res.status(200).send({
+                isSuccess: 1,
+                message: "Success"
+              });
+            }
+          }
         });
       }
     }
