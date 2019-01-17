@@ -56,25 +56,22 @@ router.post("/", (req, res, next) => {
       // Invalid username
       if (!user) return invalidResponse(req, res, next);
 
-      bcrypt.compare(
-        password,
-        user.password.toString(),
-        (err, passwordsMatch) => {
-          if (err) return serverError(req, res, next, err);
+      const hash = user.password.toString();
+      bcrypt.compare(password, hash, (err, isMatch) => {
+        if (err) return serverError(req, res, next, err);
 
-          if (passwordsMatch) {
-            // Valid credentials
-            // TODO wishlist - tokens should expire
-            const token = jwt.sign({ sub: user.user_id }, config.jwtSecret);
-            return res.status(200).send({
-              isSuccess: 1,
-              message: "Success",
-              token
-            });
-            // Invalid password
-          } else return invalidResponse(req, res, next);
-        }
-      );
+        if (isMatch) {
+          // Valid credentials
+          // TODO wishlist - tokens should expire
+          const token = jwt.sign({ sub: user.user_id }, config.jwtSecret);
+          return res.status(200).send({
+            isSuccess: 1,
+            message: "Success",
+            token
+          });
+          // Invalid password
+        } else return invalidResponse(req, res, next);
+      });
     }
   );
 });
