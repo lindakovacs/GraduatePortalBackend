@@ -16,7 +16,7 @@ const connection = mysql.createConnection({
   database: config.dbName
 });
 
-getUserSkills = graduateId => {
+const getUserSkills = graduateId => {
   const sql = "Select name FROM skills WHERE graduate_id = ?";
 
   return new Promise((resolve, reject) => {
@@ -36,7 +36,7 @@ getUserSkills = graduateId => {
   });
 };
 
-getUniqueSkills = (existingSkills, newSkills) => {
+const getUniqueSkills = (existingSkills, newSkills) => {
   const combinedSkills = newSkills.concat(existingSkills);
   const uniqueSkills = [];
   const uniqueSkillsObj = combinedSkills.reduce((acc, skill) => {
@@ -51,15 +51,15 @@ getUniqueSkills = (existingSkills, newSkills) => {
   return uniqueSkills;
 };
 
-updateUserSkills = (skills, graduateId, orginalSkills, res) => {
+const updateUserSkills = (skills, graduateId, orginalSkills, res) => {
   skills = [...skills].filter(skill => skill !== "");
   orginalSkills = [...orginalSkills].filter(skill => skill !== "");
 
-  const sql = `UPDATE skills SET name = ? WHERE graduate_id = ?  AND name = ?`;
+  const sql = "UPDATE skills SET name = ? WHERE graduate_id = ?  AND name = ?";
 
   while (skills.length !== 0) {
-    skill = skills.shift();
-    orginalSkill = orginalSkills.shift();
+    const skill = skills.shift();
+    const orginalSkill = orginalSkills.shift();
 
     if (orginalSkill) {
       connection.query(
@@ -80,7 +80,7 @@ updateUserSkills = (skills, graduateId, orginalSkills, res) => {
   return true;
 };
 
-insertSkills = (skills, graduate_id) => {
+const insertSkills = (skills, graduate_id) => {
   while (skills.length !== 0) {
     const skill = skills.shift();
     const sql = "insert INTO skills (graduate_id,name) VALUES (?,?)";
@@ -93,7 +93,7 @@ insertSkills = (skills, graduate_id) => {
   return true;
 };
 
-deleteSkills = (skills, graduate_id) => {
+const deleteSkills = (skills, graduate_id) => {
   while (skills.length !== 0) {
     const skillToDelete = skills.shift();
     const sql = "DELETE from skills where graduate_id = ? AND name = ?";

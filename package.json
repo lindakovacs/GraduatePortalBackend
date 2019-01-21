@@ -1,9 +1,9 @@
 {
-  "name": "elastic-node-test",
+  "name": "graduate-portal-backend",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "DEBUG=elastic-node-test:* npm start",
+    "dev": "DEBUG=graduate-portal-backend:* npm start",
     "start": "node ./bin/www"
   },
   "dependencies": {

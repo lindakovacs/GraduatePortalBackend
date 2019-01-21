@@ -8,10 +8,10 @@
     "ecmaVersion": 2018
   },
   "rules": {
-    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "indent": ["warn", 2, { "SwitchCase": 1 }],
     "linebreak-style": ["error", "unix"],
     "no-console": "off",
-    "no-unused-vars": "off",
+    "no-unused-vars": "warn",
     "quotes": ["error", "double"],
     "semi": ["error", "always"]
   }
