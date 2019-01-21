@@ -1,169 +1,85 @@
 const express = require("express");
 const router = express.Router();
 const methodNotAllowed = require("../errors/methodNotAllowed");
-const mysql = require("mysql");
+const mysql = require("mysql2/promise");
 const { auth, authErrorHandler } = require("../middleware/auth");
+const serverError = require("../errors/serverError");
 const config = require("../config");
 
 router.use(auth);
 router.use(authErrorHandler);
 
-const connection = mysql.createConnection({
-  host: config.dbHost,
-  user: config.dbUser,
-  port: "3306",
-  password: config.dbPassword,
-  database: config.dbName
-});
-
-const getUserSkills = graduateId => {
-  const sql = "Select name FROM skills WHERE graduate_id = ?";
-
-  return new Promise((resolve, reject) => {
-    connection.query(sql, [graduateId], (err, result) => {
-      if (err) {
-        console.log(err);
-      }
-      const skills = result.reduce((acc, skill, index) => {
-        acc.push(skill.name);
-        return acc;
-      }, []);
-      resolve(skills);
-      if (err) {
-        reject(err);
-      }
-    });
+const connect = async function() {
+  return await mysql.createConnection({
+    host: config.dbHost,
+    user: config.dbUser,
+    port: "3306",
+    password: config.dbPassword,
+    database: config.dbName
   });
 };
 
-const getUniqueSkills = (existingSkills, newSkills) => {
-  const combinedSkills = newSkills.concat(existingSkills);
-  const uniqueSkills = [];
-  const uniqueSkillsObj = combinedSkills.reduce((acc, skill) => {
-    acc[skill] = acc[skill] ? (acc[skill] += 1) : (acc[skill] = 1);
-    return acc;
-  }, {});
-
-  for (let key in uniqueSkillsObj) {
-    uniqueSkillsObj[key] < 2 && uniqueSkills.push(key);
-  }
-
-  return uniqueSkills;
-};
-
-const updateUserSkills = (skills, graduateId, orginalSkills, res) => {
-  skills = [...skills].filter(skill => skill !== "");
-  orginalSkills = [...orginalSkills].filter(skill => skill !== "");
-
-  const sql = "UPDATE skills SET name = ? WHERE graduate_id = ?  AND name = ?";
-
-  while (skills.length !== 0) {
-    const skill = skills.shift();
-    const orginalSkill = orginalSkills.shift();
-
-    if (orginalSkill) {
-      connection.query(
-        sql,
-        [orginalSkill, graduateId, skill],
-        (err, result) => {
-          if (err) {
-            return res.status(500).send({
-              isSuccess: 0,
-              message: "An unexpected error occurred",
-              err
-            });
-          }
-        }
-      );
-    }
-  }
-  return true;
-};
-
-const insertSkills = (skills, graduate_id) => {
-  while (skills.length !== 0) {
-    const skill = skills.shift();
-    const sql = "insert INTO skills (graduate_id,name) VALUES (?,?)";
-    connection.query(sql, [graduate_id, skill], (err, result) => {
-      if (err) {
-        return false;
-      }
-    });
-  }
-  return true;
-};
-
-const deleteSkills = (skills, graduate_id) => {
-  while (skills.length !== 0) {
-    const skillToDelete = skills.shift();
-    const sql = "DELETE from skills where graduate_id = ? AND name = ?";
-    connection.query(sql, [graduate_id, skillToDelete], (err, result) => {
-      if (err) {
-        return true;
-      }
-    });
-  }
-  return true;
-};
-
-router.put("/", (req, res) => {
+const updateGraduate = async function(connection, data) {
   const sql =
-    "UPDATE graduates  SET first_name = ?, last_name = ?, is_active = ?, phone = ?, story = ?, year_of_graduate = ?, email = ?, github = ?, linkedin = ?, website = ?, image = ?, resume = ?  WHERE graduate_id = ? ";
-  connection.query(
-    sql,
-    [
-      req.body.firstName,
-      req.body.lastName,
-      req.body.isActive,
-      req.body.phone,
-      req.body.story,
-      req.body.yearOfGrad,
-      req.body.email,
-      req.body.github,
-      req.body.linkedin,
-      req.body.website,
-      req.body.image,
-      req.body.resume,
-      req.body.graduateId,
-      req.body.updateUserSkills
-    ],
-    (err, result) => {
-      if (err) {
-        return res.status(500).send({
-          isSuccess: 0,
-          message: "An unexpected error occurred"
-        });
-      } else {
-        const skills = getUserSkills(req.body.graduateId);
+    "UPDATE graduates SET first_name = ?, last_name = ?, is_active = ?, phone = ?, story = ?, year_of_graduate = ?, email = ?, github = ?, linkedin = ?, website = ?, image = ?, resume = ?  WHERE graduate_id = ? ";
+  return await connection.execute(sql, data);
+};
 
-        skills.then(skill => {
-          updateUserSkills(skill, req.body.graduateId, req.body.skills, res);
+const deleteSkills = async function(connection, graduateId) {
+  const sql = "DELETE FROM skills WHERE graduate_id = ?";
+  return await connection.execute(sql, [graduateId]);
+};
 
-          if (req.body.skills.length > skill.length) {
-            const skills = getUniqueSkills(req.body.skills, skill);
-            if (skills) {
-              const response = insertSkills(skills, req.body.graduateId);
-              if (response) {
-                res.status(200).send({
-                  isSuccess: 1,
-                  message: "Success"
-                });
-              }
-            }
-          } else if (req.body.skills.length < skill.length) {
-            const skills = getUniqueSkills(req.body.skills, skill);
-            const response = deleteSkills(skills, req.body.graduateId);
-            if (response) {
-              res.status(200).send({
-                isSuccess: 1,
-                message: "Success"
-              });
-            }
-          }
-        });
-      }
-    }
-  );
+const insertSkills = async function(connection, graduateId, skills) {
+  if (!graduateId || !skills || !Array.isArray(skills))
+    throw new Error("Arguments are falsy");
+  if (skills.length === 0) return;
+
+  const sql = "INSERT INTO skills(graduate_id, name) VALUES(?, ?)";
+  return new Promise((resolve, reject) => {
+    (async function loop(idx = 0) {
+      if (idx === skills.length) return resolve();
+      await connection.execute(sql, [graduateId, skills[idx]]).catch(reject);
+      return loop(idx + 1);
+    })();
+  });
+};
+
+router.put("/", async (req, res, next) => {
+  const handleServerError = serverError.bind(null, req, res, next);
+
+  const connection = await connect().catch(handleServerError);
+
+  const graduateData = [
+    req.body.firstName || null,
+    req.body.lastName || null,
+    req.body.isActive || null,
+    req.body.phone || null,
+    req.body.story || null,
+    req.body.yearOfGrad || null,
+    req.body.email || null,
+    req.body.github || null,
+    req.body.linkedin || null,
+    req.body.website || null,
+    req.body.image || null,
+    req.body.resume || null,
+    req.body.graduateId || null
+  ];
+  await updateGraduate(connection, graduateData).catch(handleServerError);
+  await connection.query("START TRANSACTION").catch(handleServerError);
+
+  try {
+    await deleteSkills(connection, req.body.graduateId);
+    await insertSkills(connection, req.body.graduateId, req.body.skills);
+    await connection.query("COMMIT");
+    return res.status(200).send({
+      isSuccess: 1,
+      message: "Success"
+    });
+  } catch (err) {
+    await connection.query("ROLLBACK");
+    handleServerError(err);
+  }
 });
 
 router.all("/", methodNotAllowed);

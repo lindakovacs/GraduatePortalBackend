@@ -3,7 +3,7 @@ const router = express.Router();
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const config = require("../config");
 
 const invalidResponse = (req, res, next) => {

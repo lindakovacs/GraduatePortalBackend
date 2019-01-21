@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const methodNotAllowed = require("../errors/methodNotAllowed");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const { auth, authErrorHandler } = require("../middleware/auth");
 const config = require("../config");
 
