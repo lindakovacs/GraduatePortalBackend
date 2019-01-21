@@ -2,34 +2,8 @@ const express = require("express");
 const router = express.Router();
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const mysql = require("mysql2");
+const serverError = require("../errors/serverError");
 const config = require("../config");
-const compileTableData = data => {
-  const results = data.reduce((acc, graduate) => {
-    if (!acc[graduate.graduate_id]) {
-      acc[graduate.graduate_id] = {
-        id: graduate.graduate_id,
-        firstName: graduate.first_name,
-        lastName: graduate.last_name,
-        image: graduate.image,
-        skills: [],
-        isActive: graduate.is_active,
-        phone: graduate.phone,
-        links: {
-          email: graduate.email,
-          github: graduate.github,
-          linkedin: graduate.linkedin,
-          website: graduate.website
-        },
-        yearOfGrad: graduate.year_of_graduate,
-        resume: graduate.resume,
-        story: graduate.story
-      };
-    }
-    acc[graduate.graduate_id].skills.push(graduate.name);
-    return acc;
-  }, {});
-  return results;
-};
 
 const connection = mysql.createConnection({
   host: config.dbHost,
@@ -39,25 +13,36 @@ const connection = mysql.createConnection({
   database: config.dbName
 });
 
-connection.connect(err => {
-  if (err) {
-    // TODO log
-    console.log("Could not connect to database: ", err);
-    // TODO figure out how to catch this
-    throw Error("Could not connect to database");
-  }
-});
-
-router.get("/", (req, res) => {
+router.get("/", (req, res, next) => {
   connection.query(
-    "select  * from graduates INNER JOIN skills on graduates.graduate_id = skills.graduate_id;",
-    (err, result, fields) => {
-      const results = compileTableData(result);
-      res.setHeader("Content-Type", "application/json");
+    "SELECT * FROM graduates g LEFT JOIN (SELECT graduate_id, GROUP_CONCAT(name) AS skills FROM skills GROUP BY graduate_id) s ON g.graduate_id = s.graduate_id ORDER BY year_of_graduate, last_name, first_name;",
+    (err, result) => {
+      if (err) return serverError(req, res, next, err);
+      const profiles = result.reduce((acc, row) => {
+        acc[row.graduate_id] = {
+          id: row.graduate_id,
+          firstName: row.first_name || "",
+          lastName: row.last_name || "",
+          isActive: row.is_active,
+          phone: row.phone || "",
+          story: row.story || "",
+          yearOfGrad: row.year_of_graduate || "",
+          resume: row.resume || "",
+          links: {
+            email: row.email || "",
+            github: row.github || "",
+            linkedin: row.linkedin || "",
+            website: row.website || ""
+          },
+          image: row.image || "",
+          skills: row.skills ? row.skills.split(",") : []
+        };
+        return acc;
+      }, {});
       res.status(200).send({
         isSuccess: 1,
         message: "Success",
-        profiles: results
+        profiles
       });
     }
   );
