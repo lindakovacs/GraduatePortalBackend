@@ -14,3 +14,4 @@ nodemon dev
 
 - Jamal Taylor
 - Matina Patsos
+- Bill Peirce
