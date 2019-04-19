@@ -9,10 +9,11 @@ const { env } = process;
 
 const config = {
   useCors: env.USE_CORS === "true",
-  dbHost: env.DB_HOST,
-  dbName: env.DB_NAME,
-  dbUser: env.DB_USERNAME,
-  dbPassword: env.DB_PASSWORD,
+  dbName: process.env.MONGO_DATABASE,
+  dbCluster: process.env.MONGO_CLUSTER,
+  dbUser: process.env.MONGO_USER,
+  dbPassword: process.env.MONGO_PASSWORD,
+  mongoUri: `mongodb+srv://${dbUser}:${dbPassword}@cluster${dbCluster}.mongodb.net/${dbName}?retryWrites=true`;
   awsAccessKeyId: env.AWS_ACCESS_KEY_ID,
   awsSecretAccessKey: env.AWS_SECRET_ACCESS_KEY,
   s3UploadRegion: env.S3_UPLOAD_REGION,

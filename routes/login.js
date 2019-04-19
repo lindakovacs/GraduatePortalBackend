@@ -1,10 +1,16 @@
 const express = require("express");
 const router = express.Router();
+
+const mongoose = require("mongoose");
+
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const mysql = require("mysql2");
 const config = require("../config");
+
+const User = require("../models/user");
+
+mongoose.connect(config.mongoUri, { useNewUrlParser: true });
 
 const invalidResponse = (req, res, next) => {
   res.status(200).send({
@@ -34,25 +40,10 @@ router.post("/", (req, res, next) => {
     throw new Error("Invalid request");
   }
 
-  const connection = mysql.createConnection({
-    host: config.dbHost,
-    user: config.dbUser,
-    password: config.dbPassword,
-    database: config.dbName
-  });
+  // TODO figure out how to handle error without whole app crashing
 
-  connection.connect(err => {
-    // TODO figure out how to handle error without whole app crashing
-    if (err) throw err;
-  });
-
-  const sql = "SELECT user_id, password FROM users WHERE username = ? LIMIT 1";
-  connection.query(
-    { sql, values: [username], timeout: 30000 },
-    (err, results) => {
-      if (err) return serverError(req, res, next, err);
-
-      const [user] = results;
+  User.findOne({ username })
+    .then((err, user) => {
       // Invalid username
       if (!user) return invalidResponse(req, res, next);
 
@@ -72,8 +63,9 @@ router.post("/", (req, res, next) => {
           // Invalid password
         } else return invalidResponse(req, res, next);
       });
-    }
-  );
+    })
+    .catch(err => serverError(req, res, next, err));
+
 });
 
 router.all("/", methodNotAllowed);
