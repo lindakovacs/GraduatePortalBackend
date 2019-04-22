@@ -10,8 +10,6 @@ const config = require("../config");
 
 const User = require("../models/user");
 
-mongoose.connect(config.mongoUri, { useNewUrlParser: true });
-
 const invalidResponse = (req, res, next) => {
   res.status(200).send({
     isSuccess: 0,
@@ -29,9 +27,8 @@ const serverError = (req, res, next, err) => {
   next(err);
 };
 
-router.post("/", (req, res, next) => {
+router.post("/", async (req, res, next) => {
   const { username, password } = req.body;
-  console.log("from login.js route:", username, password);
   if (username === undefined || password === undefined) {
     res.status(400).send({
       isSuccess: 0,
@@ -40,6 +37,8 @@ router.post("/", (req, res, next) => {
     });
     throw new Error("Invalid request");
   }
+
+  await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
 
   // TODO figure out how to handle error without whole app crashing
 
