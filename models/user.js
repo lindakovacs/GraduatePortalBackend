@@ -6,7 +6,8 @@ const userSchema = new Schema(
   {
     username: {
       type: String,
-      unique: true,
+      // TODO: Find out why "unique: true" causes an error.
+      // unique: true,
       required: true
     },
     password: {
