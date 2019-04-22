@@ -2,20 +2,28 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema({
-  username: {
-    username: String,
-    required: true
+const userSchema = new Schema(
+  {
+    username: {
+      type: String,
+      unique: true,
+      required: true
+    },
+    password: {
+      type: String, 
+      required: true
+    },
+    isAdmin: {
+      type: Boolean,
+      required: true
+    },
+    graduateId: { type: mongoose.Schema.Types.ObjectId, ref: "Graduate" }
   },
-  password: {
-    type: String,
-    required: true
-  },
-  roles: {
-    admin: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
-    graduate: { type: mongoose.Schema.Types.ObjectId, ref: "Graduate" },
-    employer: { type: mongoose.Schema.Types.ObjectId, ref: "Employer" }
-  },
-});
+  { timestamps: true }
+);
+
+userSchema.methods.updateGraduate = async function(data) {
+
+};
 
 module.exports = mongoose.model("User", userSchema);
