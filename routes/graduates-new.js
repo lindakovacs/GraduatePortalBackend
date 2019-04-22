@@ -15,10 +15,16 @@ mongoose.connect(config.mongoUri, { useNewUrlParser: true });
 router.use(auth);
 router.use(authErrorHandler);
 
+// TODO: Refactor to async/await.
+
 router.post("/", (req, res) => {
 
-  let skillsRaw = req.body.skills.split(",");
-  const skills = skillsRaw.map(skill => skill.trim());
+  const user = req.body.user;
+
+  // TODO: Confirm skills are converted to array on front-end.
+  // const skills = req.body.skills
+  //   .split(",")
+  //   .map(skill => skill.trim());
 
   const grad = new Graduate({
     fistName: req.body.firstName,
@@ -27,24 +33,32 @@ router.post("/", (req, res) => {
     phone: req.body.phone,
     story: req.body.story,
     yearOfGrad: req.body.yearOfGrad,
+    resume: req.body.resume,
+    image: req.body.image,
+    email: req.body.email,
+    // TODO: Refactor links?
     links: {
       github: req.body.github,
       linkedin: req.body.linkedin,
       website: req.body.website
     },
-    image: req.body.image,
-    resume: req.body.resume,
-    skills,
-    userId: req.body.user._id
+    skills: req.body.skills,
+    userId: req.body.userId
   });
 
+
   grad.save()
-    .then(result => {
+    .then(result => Graduate.findOne({ user: user._id }))
+    .then(graduate => {
+      user.graduateId = graduate._id;
+      return graduate;
+    })
+    .then(graduate => {
       res.setHeader("Content-Type", "application/json");
       res.status(200).send({
         success: 1,
         retMessage: "Success",
-        graduateId: result.insertId
+        graduateId: graduate._id
       });
     })
     .catch(err => {

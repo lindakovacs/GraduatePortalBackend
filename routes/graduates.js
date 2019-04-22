@@ -5,13 +5,14 @@ const mongoose = require("mongoose");
 
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
-const { config } = require("../config");
+const config = require("../config");
 
 const Graduate = require("../models/graduate");
 
 
 mongoose.connect(config.mongoUri, { useNewUrlParser: true });
 
+// TODO: Refactor to async/await
 router.get("/", (req, res, next) => {
   Graduate.find()
     .then(profiles => {
