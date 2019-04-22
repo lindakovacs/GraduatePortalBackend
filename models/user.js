@@ -22,8 +22,4 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-userSchema.methods.updateGraduate = async function(data) {
-
-};
-
 module.exports = mongoose.model("User", userSchema);
