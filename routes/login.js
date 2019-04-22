@@ -31,6 +31,7 @@ const serverError = (req, res, next, err) => {
 
 router.post("/", (req, res, next) => {
   const { username, password } = req.body;
+  console.log("from login.js route:", username, password);
   if (username === undefined || password === undefined) {
     res.status(400).send({
       isSuccess: 0,
@@ -42,10 +43,12 @@ router.post("/", (req, res, next) => {
 
   // TODO figure out how to handle error without whole app crashing
 
-  User.findOne({ username })
+  User.findOne({ username: username })
     .then((err, user) => {
       // Invalid username
       if (!user) return invalidResponse(req, res, next);
+
+      console.log(user);
 
       const hash = user.password.toString();
       bcrypt.compare(password, hash, (err, isMatch) => {
