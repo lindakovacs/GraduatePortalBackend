@@ -16,10 +16,15 @@ router.get("/", async (req, res, next) => {
 
   Graduate.find()
     .then(profiles => {
+      const updatedProfiles = profiles.map(grad => {
+        let gradId = grad._id.toString();
+        grad._id = gradId;
+        return grad;
+      });
       res.status(200).send({
         isSuccess: 1,
         message: "Success",
-        profiles
+        profiles: updatedProfiles
       });
     })
     .catch(err => serverError(req, res, next, err));

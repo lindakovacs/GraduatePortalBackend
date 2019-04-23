@@ -43,10 +43,11 @@ router.put("/", async (req, res, next) => {
 
       return grad.save();
     })
-    .then(result => {
+    .then(grad => {
       res.status(200).send({
         isSuccess: 1,
-        message: "Success"
+        message: "Success",
+        _id: grad._id
       });
     })
     .catch(handleServerError);
