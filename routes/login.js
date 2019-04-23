@@ -52,15 +52,16 @@ router.post("/", async (req, res, next) => {
       // Invalid username
       if (!user) return invalidResponse(req, res, next);
 
-      bcrypt.hash(password, 12)
-        .then(hashedPw => console.log("Here's the hashed password:", hashedPw))
-        .catch(err => console.log("Error hashing password", err));
+      // bcrypt.hash(password, 12)
+      //   .then(hashedPw => console.log("Here's the hashed password:", hashedPw))
+      //   .catch(err => console.log("Error hashing password", err));
 
       const hash = user.password.toString();
       bcrypt.compare(password, hash, (err, isMatch) => {
         if (err) return serverError(req, res, next, err);
 
         if (isMatch) {
+          console.log("It matched!!");
           // Valid credentials
           // TODO wishlist - tokens should expire
           const token = jwt.sign({ sub: user.user_id }, config.jwtSecret);
