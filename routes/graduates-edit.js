@@ -22,6 +22,7 @@ router.put("/", async (req, res, next) => {
   // TODO: Refactor to async/await
   Graduate.findById(req.body.graduateId)
     .then(grad => {
+      console.log("From graduates-edit.js, just inside Graduate.findById():", grad);
       // TODO: Add userId to request in app.js to allow additional backend auth
       // if (grad.userId.toString() !== req.body.userId.toString()) {
       //   const error = new Error('Not authorized');
