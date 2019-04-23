@@ -41,7 +41,7 @@ router.post("/", async (req, res, next) => {
     throw new Error("Invalid request");
   }
 
-  mongoose.connect(config.mongoUri, { useNewUrlParser: true });
+  await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
   const db = mongoose.connection;
 
   // Check connection.
