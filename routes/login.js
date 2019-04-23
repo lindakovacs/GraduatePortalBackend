@@ -42,17 +42,17 @@ router.post("/", async (req, res, next) => {
   }
 
   await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
-  const db = mongoose.connection;
+  // const db = mongoose.connection;
 
   // Check connection.
-  db.once("open", () => {
-    console.log("Connected to MongoDB inside router.post().");
-  });
+  // db.once("open", () => {
+  //   console.log("Connected to MongoDB inside router.post().");
+  // });
 
   // Check for db errors.
-  db.on("error", err => {
-    console.log("MongoDB connecteion error from inside router.post().", err);
-  });
+  // db.on("error", err => {
+  //   console.log("MongoDB connecteion error from inside router.post().", err);
+  // });
 
   // TODO figure out how to handle error without whole app crashing
 
