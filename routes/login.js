@@ -57,7 +57,7 @@ router.post("/", async (req, res, next) => {
   // TODO figure out how to handle error without whole app crashing
 
   User.findOne({ username: username })
-    .then((err, user) => {
+    .then(user => {
       console.log("From inside login.js -> User.findOne():", user ? user : "user is undefined");
       // Invalid username
       if (!user) return invalidResponse(req, res, next);
