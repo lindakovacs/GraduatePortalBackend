@@ -20,9 +20,12 @@ router.put("/", async (req, res, next) => {
   await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
  
   // TODO: Refactor to async/await
-  Graduate.findById(req.body.graduateId)
+  Graduate.findById(req.body._id)
     .then(grad => {
-      console.log("From graduates-edit.js, just inside Graduate.findById():", grad);
+      console.log(
+        "From graduates-edit.js, just inside Graduate.findById():", 
+        grad ? grad : "grad is undefined."
+      );
       // TODO: Add userId to request in app.js to allow additional backend auth
       // if (grad.userId.toString() !== req.body.userId.toString()) {
       //   const error = new Error('Not authorized');

@@ -30,8 +30,6 @@ const serverError = (req, res, next, err) => {
 // TODO: Refactor to async/await
 router.post("/", async (req, res, next) => {
   const { username, password } = req.body;
-
-  console.log("From inside login.js -> just inside router.post():", username, password);
   
   if (username === undefined || password === undefined) {
     res.status(400).send({
@@ -56,7 +54,6 @@ router.post("/", async (req, res, next) => {
         if (err) return serverError(req, res, next, err);
 
         if (isMatch) {
-          console.log("It matched!!");
           // Valid credentials
           // TODO wishlist - tokens should expire
           const token = jwt.sign({ sub: user.user_id }, config.jwtSecret);
