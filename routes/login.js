@@ -48,13 +48,8 @@ router.post("/", async (req, res, next) => {
 
   User.findOne({ username: username })
     .then(user => {
-      console.log("From inside login.js -> User.findOne():", user ? user : "user is undefined");
       // Invalid username
       if (!user) return invalidResponse(req, res, next);
-
-      // bcrypt.hash(password, 12)
-      //   .then(hashedPw => console.log("Here's the hashed password:", hashedPw))
-      //   .catch(err => console.log("Error hashing password", err));
 
       const hash = user.password.toString();
       bcrypt.compare(password, hash, (err, isMatch) => {
