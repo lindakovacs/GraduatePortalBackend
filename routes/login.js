@@ -29,6 +29,8 @@ const serverError = (req, res, next, err) => {
 
 router.post("/", async (req, res, next) => {
   const { username, password } = req.body;
+
+  console.log("From inside login.js -> just inside router.post():", username, password);
   if (username === undefined || password === undefined) {
     res.status(400).send({
       isSuccess: 0,

@@ -9,7 +9,6 @@ const config = require("../config");
 
 const Graduate = require("../models/graduate");
 
-console.log("Checking connection from graduates.js:", config.mongoUri);
 mongoose.connect(config.mongoUri, { useNewUrlParser: true });
 const db = mongoose.connection;
 
