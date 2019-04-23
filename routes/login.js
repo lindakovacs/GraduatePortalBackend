@@ -31,6 +31,7 @@ router.post("/", async (req, res, next) => {
   const { username, password } = req.body;
 
   console.log("From inside login.js -> just inside router.post():", username, password);
+  
   if (username === undefined || password === undefined) {
     res.status(400).send({
       isSuccess: 0,
@@ -41,6 +42,17 @@ router.post("/", async (req, res, next) => {
   }
 
   mongoose.connect(config.mongoUri, { useNewUrlParser: true });
+  const db = mongoose.connection;
+
+  // Check connection.
+  db.once("open", () => {
+    console.log("Connected to MongoDB inside router.post().");
+  });
+
+  // Check for db errors.
+  db.on("error", err => {
+    console.log("MongoDB connecteion error from inside router.post().", err);
+  });
 
   // TODO figure out how to handle error without whole app crashing
 
