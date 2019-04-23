@@ -38,7 +38,7 @@ router.post("/", async (req, res, next) => {
     throw new Error("Invalid request");
   }
 
-  await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
+  mongoose.connect(config.mongoUri, { useNewUrlParser: true });
 
   // TODO figure out how to handle error without whole app crashing
 
