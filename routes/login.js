@@ -52,9 +52,9 @@ router.post("/", async (req, res, next) => {
       // Invalid username
       if (!user) return invalidResponse(req, res, next);
 
-      bcrypt.hash(password)
+      bcrypt.hash(password, 12)
         .then(hashedPw => console.log("Here's the hashed password:", hashedPw))
-        .catch(err => console.log("Error hashing password"));
+        .catch(err => console.log("Error hashing password", err));
 
       const hash = user.password.toString();
       bcrypt.compare(password, hash, (err, isMatch) => {
