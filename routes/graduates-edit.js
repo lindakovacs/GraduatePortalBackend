@@ -22,10 +22,6 @@ router.put("/", async (req, res, next) => {
   // TODO: Refactor to async/await
   Graduate.findById(req.body._id)
     .then(grad => {
-      console.log(
-        "From graduates-edit.js, just inside Graduate.findById():", 
-        grad ? grad : "grad is undefined."
-      );
       // TODO: Add userId to request in app.js to allow additional backend auth
       // if (grad.userId.toString() !== req.body.userId.toString()) {
       //   const error = new Error('Not authorized');
@@ -40,7 +36,7 @@ router.put("/", async (req, res, next) => {
       grad.yearOfGrad = req.body.yearOfGrad || null;
       grad.image = req.body.image || null;
       grad.resume = req.body.resume || null;
-      grad.email = req.body.email || null;
+      grad.links.email = req.body.email || null;
       grad.links.github = req.body.github || null;
       grad.links.linkedin = req.body.linkedin || null;
       grad.links.website = req.body.website || null;

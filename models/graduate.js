@@ -10,8 +10,8 @@ const graduateSchema = new mongoose.Schema({
   resume: { type: String, default: ""},
   image: { type: String, default: ""},
   // TODO: Refactor links to not be nested? Would require front-end refactoring too.
-  email: { type: String, default: ""},
   links: {
+    email: { type: String, default: ""},
     github: { type: String, default: ""},
     linkedin: { type: String, default: ""},
     website: { type: String, default: ""},

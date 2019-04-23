@@ -35,9 +35,9 @@ router.post("/", (req, res) => {
     yearOfGrad: req.body.yearOfGrad,
     resume: req.body.resume,
     image: req.body.image,
-    email: req.body.email,
     // TODO: Refactor links?
     links: {
+      email: req.body.email,
       github: req.body.github,
       linkedin: req.body.linkedin,
       website: req.body.website
