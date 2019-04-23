@@ -28,6 +28,12 @@ router.put("/", async (req, res, next) => {
       //   error.statusCode = 403;
       //   throw error;
       // }
+
+      // TODO: Confirm skills are converted to array on front-end.
+      // const skills = req.body.skills
+      //   .split(",")
+      //   .map(skill => skill.trim());
+
       grad.firstName = req.body.firstName || null;
       grad.lastName = req.body.lastName || null;
       grad.isActive = req.body.isActive || null;
@@ -40,6 +46,7 @@ router.put("/", async (req, res, next) => {
       grad.links.github = req.body.github || null;
       grad.links.linkedin = req.body.linkedin || null;
       grad.links.website = req.body.website || null;
+      grad.skills = req.body.skills || [];
 
       return grad.save();
     })

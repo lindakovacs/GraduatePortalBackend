@@ -26,8 +26,6 @@ router.post("/", (req, res) => {
   //   .split(",")
   //   .map(skill => skill.trim());
 
-  console.log(req.body.skills);
-
   const grad = new Graduate({
     fistName: req.body.firstName,
     lastName: req.body.lastName,
