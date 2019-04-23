@@ -58,10 +58,9 @@ router.post("/", async (req, res, next) => {
 
   User.findOne({ username: username })
     .then((err, user) => {
+      console.log("From inside login.js -> User.findOne():", user ? user : "user is undefined");
       // Invalid username
       if (!user) return invalidResponse(req, res, next);
-
-      console.log("From inside login.js -> User.findOne():", user);
 
       const hash = user.password.toString();
       bcrypt.compare(password, hash, (err, isMatch) => {
