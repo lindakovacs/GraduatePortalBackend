@@ -11,6 +11,17 @@ const Graduate = require("../models/graduate");
 
 
 mongoose.connect(config.mongoUri, { useNewUrlParser: true });
+const db = mongoose.connection;
+
+// Check connection.
+db.once("open", () => {
+  console.log("Connected to MongoDB.");
+});
+
+// Check for db errors.
+db.on("error", err => {
+  console.log(err);
+});
 
 // TODO: Refactor to async/await
 router.get("/", (req, res, next) => {
