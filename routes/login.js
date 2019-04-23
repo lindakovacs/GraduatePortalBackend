@@ -27,6 +27,7 @@ const serverError = (req, res, next, err) => {
   next(err);
 };
 
+// TODO: Refactor to async/await
 router.post("/", async (req, res, next) => {
   const { username, password } = req.body;
 
@@ -42,17 +43,6 @@ router.post("/", async (req, res, next) => {
   }
 
   await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
-  // const db = mongoose.connection;
-
-  // Check connection.
-  // db.once("open", () => {
-  //   console.log("Connected to MongoDB inside router.post().");
-  // });
-
-  // Check for db errors.
-  // db.on("error", err => {
-  //   console.log("MongoDB connecteion error from inside router.post().", err);
-  // });
 
   // TODO figure out how to handle error without whole app crashing
 
