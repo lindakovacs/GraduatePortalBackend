@@ -20,6 +20,11 @@ router.post("/", async (req, res, next) => {
 
 
   await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
+  let db = mongoose.connection;
+
+  db.once("open", () => console.log("Connected to MongoDB"));
+  db.on("error", err => console.log(err));
+
 
   // const user = req.body.user;
 
