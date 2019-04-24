@@ -18,10 +18,6 @@ router.put("/", async (req, res, next) => {
   const handleServerError = serverError.bind(null, req, res, next);
 
   await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
-  let db = mongoose.connection;
-
-  db.once("open", () => console.log("Connected to MongoDB"));
-  db.on("error", err => console.log(err));
  
   // TODO: Refactor to async/await
   Graduate.findById(req.body._id)
