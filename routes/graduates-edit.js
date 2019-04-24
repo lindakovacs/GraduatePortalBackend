@@ -34,6 +34,8 @@ router.put("/", async (req, res, next) => {
       //   .split(",")
       //   .map(skill => skill.trim());
 
+      console.log(grad);
+
       grad.firstName = req.body.firstName || null;
       grad.lastName = req.body.lastName || null;
       grad.isActive = req.body.isActive || null;
