@@ -41,16 +41,8 @@ router.post("/", async (req, res, next) => {
     userId
   });
 
-  console.log("req.body.firstName = ", req.body.firstName);
-
   try {
     await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
-    let db = mongoose.connection;
-
-    db.once("open", () => console.log("Connected to MongoDB"));
-    db.on("error", err => console.log(err));
-
-    console.log("From graduates-new. After assignment:", grad);
 
     // TODO: Add userId to graduate here??
     // TODO: Add graduateId to user if he/she is a graduate.
@@ -70,7 +62,6 @@ router.post("/", async (req, res, next) => {
     await grad.save();
     const graduate = await Graduate.findOne({ userId });
     const graduateId = graduate._id;
-    console.log("From inside grad.save(). Save worked!");
     res.setHeader("Content-Type", "application/json");
     res.status(200).send({
       success: 1,
