@@ -42,13 +42,14 @@ router.post("/", (req, res) => {
       linkedin: req.body.linkedin,
       website: req.body.website
     },
-    skills: req.body.skills,
-    userId: req.body.userId
+    skills: req.body.skills
+    // TODO: Add userId property here??
   });
 
   console.log("From graduates-new. After assignment:", grad);
 
   grad.save()
+    // TODO: Add userId to graduate here??
     // TODO: Add graduateId to user if he/she is a graduate.
     // .then(result => Graduate.findOne({ user: user._id }))
     // .then(graduate => {
@@ -64,6 +65,7 @@ router.post("/", (req, res) => {
     //   });
     // })
     .then(result => {
+      console.log("From inside grad.save(). Save worked!");
       res.setHeader("Content-Type", "application/json");
       res.status(200).send({
         success: 1,
