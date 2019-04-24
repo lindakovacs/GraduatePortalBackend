@@ -19,7 +19,7 @@ router.use(authErrorHandler);
 
 router.post("/", (req, res) => {
 
-  const user = req.body.user;
+  // const user = req.body.user;
 
   // TODO: Confirm skills are converted to array on front-end.
   // const skills = req.body.skills
@@ -46,19 +46,28 @@ router.post("/", (req, res) => {
     userId: req.body.userId
   });
 
+  console.log("From graduates-new. After assignment:", grad);
 
   grad.save()
-    .then(result => Graduate.findOne({ user: user._id }))
-    .then(graduate => {
-      user.graduateId = graduate._id;
-      return graduate;
-    })
-    .then(graduate => {
+    // TODO: Add graduateId to user if he/she is a graduate.
+    // .then(result => Graduate.findOne({ user: user._id }))
+    // .then(graduate => {
+    //   user.graduateId = graduate._id;
+    //   return graduate;
+    // })
+    // .then(graduate => {
+    //   res.setHeader("Content-Type", "application/json");
+    //   res.status(200).send({
+    //     success: 1,
+    //     retMessage: "Success",
+    //     graduateId: graduate._id
+    //   });
+    // })
+    .then(result => {
       res.setHeader("Content-Type", "application/json");
       res.status(200).send({
         success: 1,
-        retMessage: "Success",
-        graduateId: graduate._id
+        retMessage: "Success"
       });
     })
     .catch(err => {
