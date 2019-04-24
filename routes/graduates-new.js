@@ -10,14 +10,16 @@ const config = require("../config");
 const Graduate = require("../models/graduate");
 
 
-mongoose.connect(config.mongoUri, { useNewUrlParser: true });
 
 router.use(auth);
 router.use(authErrorHandler);
 
 // TODO: Refactor to async/await.
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res, next) => {
+
+
+  await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
 
   // const user = req.body.user;
 
