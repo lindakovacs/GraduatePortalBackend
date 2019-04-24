@@ -34,7 +34,7 @@ router.put("/", async (req, res, next) => {
       //   .split(",")
       //   .map(skill => skill.trim());
 
-      console.log(grad);
+      console.log("Before assignment: ", grad);
 
       grad.firstName = req.body.firstName || null;
       grad.lastName = req.body.lastName || null;
@@ -49,6 +49,8 @@ router.put("/", async (req, res, next) => {
       grad.links.linkedin = req.body.linkedin || null;
       grad.links.website = req.body.website || null;
       grad.skills = req.body.skills || [];
+
+      console.log("After assignment: ", grad);
 
       return grad.save();
     })
