@@ -29,30 +29,19 @@ router.put("/", async (req, res, next) => {
       //   throw error;
       // }
 
-      // TODO: Confirm skills are converted to array on front-end.
-      // const skills = req.body.skills
-      //   .split(",")
-      //   .map(skill => skill.trim());
-
-      console.log("billybillybilly");
-      console.log("Body from request: ", req.body);
-      console.log("Before assignment: ", grad);
-
-      grad.firstName = req.body.firstName || null;
-      grad.lastName = req.body.lastName || null;
-      grad.isActive = req.body.isActive || null;
-      grad.phone = req.body.phone || null;
-      grad.story = req.body.story || null;
-      grad.yearOfGrad = req.body.yearOfGrad || null;
-      grad.image = req.body.image || null;
-      grad.resume = req.body.resume || null;
-      grad.links.email = req.body.email || null;
-      grad.links.github = req.body.github || null;
-      grad.links.linkedin = req.body.linkedin || null;
-      grad.links.website = req.body.website || null;
-      grad.skills = req.body.skills || [];
-
-      console.log("After assignment: ", grad);
+      grad.firstName = req.body.firstName;
+      grad.lastName = req.body.lastName;
+      grad.isActive = req.body.isActive;
+      grad.phone = req.body.phone;
+      grad.story = req.body.story;
+      grad.yearOfGrad = req.body.yearOfGrad;
+      grad.image = req.body.image;
+      grad.resume = req.body.resume;
+      grad.links.email = req.body.email;
+      grad.links.github = req.body.github;
+      grad.links.linkedin = req.body.linkedin;
+      grad.links.website = req.body.website;
+      grad.skills = req.body.skills;
 
       return grad.save();
     })
