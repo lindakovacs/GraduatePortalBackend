@@ -10,7 +10,6 @@ const config = require("../config");
 const Graduate = require("../models/graduate");
 
 
-
 router.use(auth);
 router.use(authErrorHandler);
 
@@ -18,20 +17,14 @@ router.use(authErrorHandler);
 
 router.post("/", async (req, res, next) => {
 
-
   await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
   let db = mongoose.connection;
 
   db.once("open", () => console.log("Connected to MongoDB"));
   db.on("error", err => console.log(err));
 
-
-  // const user = req.body.user;
-
-  // TODO: Confirm skills are converted to array on front-end.
-  // const skills = req.body.skills
-  //   .split(",")
-  //   .map(skill => skill.trim());
+  // TODO: Add userId to request in auth.js.
+  // const user = req.body.userId;
 
   const grad = new Graduate({
     fistName: req.body.firstName,
