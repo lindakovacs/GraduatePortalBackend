@@ -18,6 +18,8 @@ router.post("/", async (req, res, next) => {
   // TODO: Add userId to request in auth.js.
   // const user = req.body.userId;
 
+  const userId = mongoose.Types.ObjectId();
+
   const grad = new Graduate({
     fistName: req.body.firstName,
     lastName: req.body.lastName,
@@ -34,9 +36,12 @@ router.post("/", async (req, res, next) => {
       linkedin: req.body.linkedin,
       website: req.body.website
     },
-    skills: req.body.skills
-    // TODO: Add userId property here??
+    skills: req.body.skills,
+    // TODO: Add logic to make this the ID for the authorized user.
+    userId
   });
+
+  console.log("req.body.firstName = ", req.body.firstName);
 
   try {
     await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
@@ -63,11 +68,14 @@ router.post("/", async (req, res, next) => {
     //   });
     // })
     await grad.save();
+    const graduate = await Graduate.findOne({ userId });
+    const graduateId = graduate._id;
     console.log("From inside grad.save(). Save worked!");
     res.setHeader("Content-Type", "application/json");
     res.status(200).send({
       success: 1,
-      retMessage: "Success"
+      retMessage: "Success",
+      graduateId
     });
   } catch (err) {
     return res.status(500).send({
