@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const graduateSchema = new mongoose.Schema({
   firstName: { type: String, default: "", required: true },
   lastName: { type: String, default: "", required: true },
-  isActive: { type: Number, default: 1, required: true },
+  isActive: { type: Boolean, default: true, required: true },
   phone: { type: String, default: ""},
   story: { type: String, default: ""},
   yearOfGrad: { type: String, default: "", required: true },
