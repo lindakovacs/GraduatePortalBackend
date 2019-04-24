@@ -21,7 +21,7 @@ router.post("/", async (req, res, next) => {
   const userId = mongoose.Types.ObjectId();
 
   const grad = new Graduate({
-    fistName: req.body.firstName,
+    firstName: req.body.firstName,
     lastName: req.body.lastName,
     isActive: req.body.isActive,
     phone: req.body.phone,
