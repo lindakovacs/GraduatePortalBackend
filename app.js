@@ -6,6 +6,7 @@ const logger = require("morgan");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const formData = require("express-form-data");
+const mongoose = require("mongoose");
 
 const indexRouter = require("./routes/index");
 const graduatesRouter = require("./routes/graduates");
@@ -15,6 +16,21 @@ const loginRouter = require("./routes/login");
 const uploadRouter = require("./routes/upload");
 const downloadResumesRouter = require("./routes/downloadResumes");
 const generalApiRouter = require("./routes/generalApi");
+
+// This will open a MongoDB connection to be used throughout all routes.
+mongoose.connect(config.mongoUri, { useNewUrlParser: true });
+const db = mongoose.connection;
+// TODO: Figure out how to send a response to the client if connection fails immediately.
+db.on("error", err => console.log(err));
+db.on("connected", () => console.log("Successfully connected to the database."));
+db.on("disconnected", () => console.log("Successfully disconnected from the database."));
+// Close open connection when process is closed.
+process.on("SIGINT", () => {
+  db.close(() => {
+    console.log("Database disconnected on app termination.");
+    process.exit(0);
+  });
+});
 
 const app = express();
 if (config.useCors) app.use(cors());

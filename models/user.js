@@ -4,8 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      // TODO: Find out why "unique: true" causes an error.
-      // unique: true,
+      unique: true,
       required: true
     },
     password: {

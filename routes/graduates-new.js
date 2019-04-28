@@ -4,8 +4,8 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 const methodNotAllowed = require("../errors/methodNotAllowed");
+const serverError = require("../errors/serverError");
 const { auth, authErrorHandler } = require("../middleware/auth");
-const config = require("../config");
 
 const Graduate = require("../models/graduate");
 
@@ -18,6 +18,7 @@ router.post("/", async (req, res, next) => {
   // TODO: Add userId to request in auth.js.
   // const user = req.body.userId;
 
+  // TODO: Remove this code once we have a user on the request
   const userId = mongoose.Types.ObjectId();
 
   const grad = new Graduate({
@@ -29,7 +30,6 @@ router.post("/", async (req, res, next) => {
     yearOfGrad: req.body.yearOfGrad,
     resume: req.body.resume,
     image: req.body.image,
-    // TODO: Refactor links?
     links: {
       email: req.body.email,
       github: req.body.github,
@@ -42,8 +42,6 @@ router.post("/", async (req, res, next) => {
   });
 
   try {
-    await mongoose.connect(config.mongoUri, { useNewUrlParser: true });
-
     // TODO: Add userId to graduate here??
     // TODO: Add graduateId to user if he/she is a graduate.
     // .then(result => Graduate.findOne({ user: user._id }))
@@ -62,17 +60,16 @@ router.post("/", async (req, res, next) => {
     await grad.save();
     const graduate = await Graduate.findOne({ userId });
     const graduateId = graduate._id;
+
     res.setHeader("Content-Type", "application/json");
     res.status(200).send({
       success: 1,
       retMessage: "Success",
       graduateId
     });
+
   } catch (err) {
-    return res.status(500).send({
-      isSuccess: 0,
-      retMessage: "An unexpected error occurred"
-    });
+    serverError(req, res, next, err);
   }
 });
 
