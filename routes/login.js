@@ -43,6 +43,8 @@ router.post("/", async (req, res, next) => {
 
     const user = await User.findOne({ username: username });
 
+    console.log(user);
+
     // Invalid username
     if (!user) return invalidResponse(req, res, next);
 
@@ -53,7 +55,8 @@ router.post("/", async (req, res, next) => {
       if (isMatch) {
         // Valid credentials
         // TODO wishlist - tokens should expire
-        const token = jwt.sign({ sub: user.user_id }, config.jwtSecret);
+        // Add user ID to the token payload (timestamp added automatically) 
+        const token = jwt.sign({ sub: user._id.toString() }, config.jwtSecret);
         return res.status(200).send({
           isSuccess: 1,
           message: "Success",

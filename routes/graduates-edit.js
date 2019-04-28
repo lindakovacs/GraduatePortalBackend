@@ -13,6 +13,15 @@ router.use(authErrorHandler);
 
 router.put("/", async (req, res, next) => {
 
+  // TODO: Make check more specific once we have roles defined.
+  // Currently checks for any user:
+  if (!req.user) {
+    return res.status(403).send({
+      isSuccess: 0,
+      message: "Unauthorized user."
+    });
+  }
+
   try {
     const grad = await Graduate.findById(req.body._id);
     // TODO: Add userId to request in app.js to allow additional backend auth
