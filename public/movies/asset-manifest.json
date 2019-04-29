@@ -1,0 +1,16 @@
+{
+  "main.css": "/movies/static/css/main.eca759b8.chunk.css",
+  "main.js": "/movies/static/js/main.628334e5.chunk.js",
+  "main.js.map": "/movies/static/js/main.628334e5.chunk.js.map",
+  "runtime~main.js": "/movies/static/js/runtime~main.4be632c4.js",
+  "runtime~main.js.map": "/movies/static/js/runtime~main.4be632c4.js.map",
+  "static/js/2.dfeeb8d0.chunk.js": "/movies/static/js/2.dfeeb8d0.chunk.js",
+  "static/js/2.dfeeb8d0.chunk.js.map": "/movies/static/js/2.dfeeb8d0.chunk.js.map",
+  "index.html": "/movies/index.html",
+  "precache-manifest.5c56f6d595a1175d8029b304b75ef1ee.js": "/movies/precache-manifest.5c56f6d595a1175d8029b304b75ef1ee.js",
+  "service-worker.js": "/movies/service-worker.js",
+  "static/css/main.eca759b8.chunk.css.map": "/movies/static/css/main.eca759b8.chunk.css.map",
+  "static/media/a-star-is-born.jpg": "/movies/static/media/a-star-is-born.b8d59834.jpg",
+  "static/media/halloween.jpg": "/movies/static/media/halloween.f6c2307e.jpg",
+  "static/media/venom.jpg": "/movies/static/media/venom.c76622d7.jpg"
+}
