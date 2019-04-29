@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
 const { auth, authErrorHandler } = require("../middleware/auth");
+const normalizeUrls = require("../util/normalizeUrls");
 
 const Graduate = require("../models/graduate");
 
@@ -21,6 +22,12 @@ router.post("/", async (req, res, next) => {
   // TODO: Remove this code once we have a user on the request
   const userId = mongoose.Types.ObjectId();
 
+  let [github, linkedin, website] = normalizeUrls(
+    req.body.github,
+    req.body.linkedin,
+    req.body.website,
+  );
+
   const grad = new Graduate({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -32,9 +39,9 @@ router.post("/", async (req, res, next) => {
     image: req.body.image,
     links: {
       email: req.body.email,
-      github: req.body.github,
-      linkedin: req.body.linkedin,
-      website: req.body.website
+      github,
+      linkedin,
+      website
     },
     skills: req.body.skills,
     // TODO: Add logic to make this the ID for the authorized user.
@@ -59,7 +66,7 @@ router.post("/", async (req, res, next) => {
     // })
     await grad.save();
     const graduate = await Graduate.findOne({ userId });
-    const graduateId = graduate._id;
+    const graduateId = graduate._id.toString();
 
     res.setHeader("Content-Type", "application/json");
     res.status(200).send({

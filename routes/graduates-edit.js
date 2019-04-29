@@ -4,6 +4,7 @@ const router = express.Router();
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
 const { auth, authErrorHandler } = require("../middleware/auth");
+const normalizeUrls = require("../util/normalizeUrls");
 
 const Graduate = require("../models/graduate");
 
@@ -22,6 +23,12 @@ router.put("/", async (req, res, next) => {
     });
   }
 
+  let [github, linkedin, website] = normalizeUrls(
+    req.body.github,
+    req.body.linkedin,
+    req.body.website,
+  );
+  
   try {
     const grad = await Graduate.findById(req.body._id);
     // TODO: Add userId to request in app.js to allow additional backend auth
@@ -40,9 +47,9 @@ router.put("/", async (req, res, next) => {
     grad.image = req.body.image;
     grad.resume = req.body.resume;
     grad.links.email = req.body.email;
-    grad.links.github = req.body.github;
-    grad.links.linkedin = req.body.linkedin;
-    grad.links.website = req.body.website;
+    grad.links.github = github;
+    grad.links.linkedin = linkedin;
+    grad.links.website = website;
     grad.skills = req.body.skills;
 
     const newGrad = await grad.save();
@@ -50,7 +57,7 @@ router.put("/", async (req, res, next) => {
     res.status(200).send({
       isSuccess: 1,
       message: "Success",
-      _id: newGrad._id
+      _id: newGrad._id.toString()
     });
   } catch(err) {
     serverError(req, res, next, err);
