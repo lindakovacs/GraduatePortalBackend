@@ -24,7 +24,7 @@ const db = mongoose.connection;
 db.on("error", err => console.log(err));
 db.on("connected", () => console.log("Successfully connected to the database."));
 db.on("disconnected", () => console.log("Successfully disconnected from the database."));
-// Close open connection when process is closed.
+// Closes open connection when process is ended.
 process.on("SIGINT", () => {
   db.close(() => {
     console.log("Database disconnected on app termination.");

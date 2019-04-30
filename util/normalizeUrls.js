@@ -1,6 +1,9 @@
-const { URL } = require("url");
+/** 
+* Based off stackoverflow thread:
+* @see https://stackoverflow.com/questions/51143871/how-to-normalize-a-url
+*/
 
-// From https://stackoverflow.com/questions/51143871/how-to-normalize-a-url
+const { URL } = require("url");
 
 const normalizeUrls = (...urlInputs) => {
   return urlInputs.map(url => {
@@ -12,7 +15,7 @@ const normalizeUrls = (...urlInputs) => {
         // Ideally, after all checks pass, the URL should be pinged to verify the correct protocol.
         url = `https://${url}`;
       }
-      
+
       const normalizedUrl = new URL(url);
 
       if (normalizedUrl.username !== "" || normalizedUrl.password !== "") {
