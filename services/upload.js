@@ -46,7 +46,7 @@ const upload = (s3Folder, fileObj) => {
         console.log(data);
         return resolve({
           ...data,
-          url: `${s3Url}/${bucket}/${key.replace(/ /g, "+")}`
+          url: `${s3Url}/${bucket}/${key.replace(/\s/g, "+")}`
         });
       });
     });
