@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
 const { auth, authErrorHandler } = require("../middleware/auth");
-const normalizeUrls = require("../util/normalizeUrls");
+const normalizeUrls = require("../services/normalizeUrls");
 
 const Graduate = require("../models/graduate");
 
