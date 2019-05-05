@@ -13,7 +13,7 @@ const normalizeUrls = (...urlInputs) => {
       if (!url.startsWith("https://") && !url.startsWith("http://")) {
         // The following line is based on the assumption that the URL will resolve using https.
         // Ideally, after all checks pass, the URL should be pinged to verify the correct protocol.
-        url = `https://${url}`;
+        url = `http://${url}`;
       }
 
       const normalizedUrl = new URL(url);

@@ -43,8 +43,6 @@ router.post("/", async (req, res, next) => {
 
     const user = await User.findOne({ username: username });
 
-    console.log(user);
-
     // Invalid username
     if (!user) return invalidResponse(req, res, next);
 
