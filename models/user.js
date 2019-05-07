@@ -11,11 +11,16 @@ const userSchema = new mongoose.Schema(
       type: String, 
       required: true
     },
+    tempPassword: {
+      type: String,
+      required: true,
+      default: ""
+    },
     isAdmin: {
       type: Boolean,
       required: true
     },
-    graduateId: { type: mongoose.Schema.Types.ObjectId, ref: "Graduate" }
+    graduate: { type: mongoose.Schema.Types.ObjectId, ref: "Graduate" }
   },
   { timestamps: true }
 );
