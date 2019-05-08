@@ -10,6 +10,8 @@ const User = require("../models/user");
 
 router.get("/", async (req, res, next) => {
 
+  console.log("it worked!!!!");
+
   try {
     const profiles = await Graduate.find().populate("user");
     const updatedProfiles = profiles.map(grad => {
@@ -18,11 +20,8 @@ router.get("/", async (req, res, next) => {
       newGrad.user = grad.user._id.toString();
       newGrad._id = grad._id.toString();
       newGrad.links.email = grad.user.username;
-      console.log(newGrad);
       return grad;
     });
-
-    // console.log(updatedProfiles[0]);
 
     res.status(200).send({
       isSuccess: 1,

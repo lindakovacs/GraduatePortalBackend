@@ -14,7 +14,9 @@ const config = {
   awsSecretAccessKey: env.AWS_SECRET_ACCESS_KEY,
   s3UploadRegion: env.S3_UPLOAD_REGION,
   s3UploadBucket: env.S3_UPLOAD_BUCKET,
-  jwtSecret: env.JWT_SECRET
+  jwtSecret: env.JWT_SECRET,
+  gmailUser: env.GMAIL_USER,
+  gmailPassword: env.GMAIL_PASSWORD
 };
 
 module.exports = config;
