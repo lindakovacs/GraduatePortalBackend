@@ -5,12 +5,9 @@ const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
 
 const Graduate = require("../models/graduate");
-const User = require("../models/user");
 
 
 router.get("/", async (req, res, next) => {
-
-  console.log("it worked!!!!");
 
   try {
     const profiles = await Graduate.find().populate("user");

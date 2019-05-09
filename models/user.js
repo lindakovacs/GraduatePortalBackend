@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    username: {
+    email: {
       type: String,
       unique: true,
       required: true
@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       default: ""
     },
-    isAdmin: {
+    isGrad: {
       type: Boolean,
       required: true
     },
