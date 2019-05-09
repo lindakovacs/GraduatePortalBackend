@@ -31,7 +31,7 @@ router.post("/", async (req, res, next) => {
       throw error;
     }
 
-    // Then check if user already exists in the two dbs.
+    // Then check if new users' emails already exist in either of the two dbs.
     for (const email of emails) {
       const userExists = await User.findOne({ email });
       if (userExists)  {
@@ -47,6 +47,7 @@ router.post("/", async (req, res, next) => {
       }
     }
 
+    // Create users and send custom grad/admin messages.
     for (const email of emails) {
       const password = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(password, 12);
