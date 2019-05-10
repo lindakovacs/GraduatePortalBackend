@@ -16,7 +16,6 @@ const graduateSchema = new mongoose.Schema({
     website: { type: String, default: ""},
   },
   skills: [{ type: String, default: "" }], // arrays automatically default to []
-  // TODO: make userId required?
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
 });
 
