@@ -20,7 +20,10 @@ const downloadResumesRouter = require("./routes/downloadResumes");
 const generalApiRouter = require("./routes/generalApi");
 
 // This will open a MongoDB connection to be used throughout all routes.
-mongoose.connect(config.mongoUri, { useNewUrlParser: true });
+mongoose.connect(config.mongoUri, { 
+  useNewUrlParser: true,
+  useCreateIndex: true
+});
 const db = mongoose.connection;
 // TODO: Figure out how to send a response to the client if connection fails immediately.
 db.on("error", err => console.log(err));
