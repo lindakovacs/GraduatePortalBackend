@@ -7,7 +7,6 @@ const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
 const sendEmail = require("../services/sendEmail");
 const { auth, authErrorHandler } = require("../middleware/auth");
-const config = require("../config");
 
 const TempUser = require("../models/tempUser");
 const User = require("../models/user");
@@ -23,7 +22,7 @@ router.post("/", async (req, res, next) => {
 
   try {
 
-    // First, check that the user exists and is an admin.
+    // Authorize user as an admin.
     const user = await User.findOne({ _id: req.user.sub });
     if (user.isGrad)  {
       const error = new Error("Not authorized");
@@ -31,7 +30,9 @@ router.post("/", async (req, res, next) => {
       throw error;
     }
 
-    // Then check if new users' emails already exist in either of the two dbs.
+    // Check whether emails already exist in the users database
+    // before creating new users and sending notifications so that the
+    // email array doesn't get partially processed before an error occurs.
     for (const email of emails) {
       const userExists = await User.findOne({ email });
       if (userExists)  {
@@ -39,28 +40,24 @@ router.post("/", async (req, res, next) => {
         error.statusCode = 400;
         throw error;
       }
-      const tempUserExists = await TempUser.findOne({ email });
-      if (tempUserExists)  {
-        const error = new Error(`A temporaray user account with this email already exists: ${email}`);
-        error.statusCode = 400;
-        throw error;
-      }
     }
 
-    // Create users and send custom grad/admin messages.
+    // Create users and send custom grad/admin messages. If the email already
+    // exists in the tempUsers database the old temp user will be replaced.
+    // Temporary users are automatically deleted from the database in 48 hrs.
     for (const email of emails) {
       const password = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(password, 12);
 
-      // Automatically deleted from db in 48 hrs.
-      const newTempUser = new TempUser({
+      let tempUser = await TempUser.findOne({ email });
+      if (tempUser) await tempUser.delete();
+      tempUser = new TempUser({
         email,
         password: hashedPassword,
         isGrad
       });
-      await newTempUser.save();
-
-      // TODO: Add url for href to activation.
+      await tempUser.save();
+      
       if (isGrad) {
         const subject = "Invitation to join the AlbanyCanCode Graduate Portal";
         const html = `
@@ -71,7 +68,7 @@ router.post("/", async (req, res, next) => {
           <p>Your temporary password is:</p>
           <p><strong>${password}</strong></p>
           <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
-          <p>Please visit this <a href="${config.ebUrl}/user/reg-form">link</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
+          <p>Please visit this <a href="${req.headers.host}">link</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
           <p>Thank you!</p>
           </body></html>
         `;
@@ -89,7 +86,7 @@ router.post("/", async (req, res, next) => {
           <p>Your temporary password is:</p>
           <p><strong>${password}</strong></p>
           <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
-          <p>Please visit this <a href="${config.ebUrl}/user/reg-form">link</a> to login with your temporary password and activate your account.</p>
+          <p>Please visit this <a href="${req.headers.host}/user/reg-form">link</a> to login with your temporary password and activate your account.</p>
           <p>Thank you!</p>
           </form>
           </body></html>
@@ -129,16 +126,3 @@ router.post("/", async (req, res, next) => {
 router.all("/", methodNotAllowed);
 
 module.exports = router;
-
-// TODO: Delete this stuff....later.
-// This logic uses the duplicate key err message from MongoDB to extract collection and email strings.
-
-// if (err.code === 11000) {
-//   let collection = err.errmsg.split(`${config.mongoDbName}.`)[1].split(" ")[0];
-//   let isTemp = collection === "users" ? "" : "temporary ";
-//   let duplicateKey = err.errmsg.split("dup key: { : \"")[1].split("\" ")[0];
-//   return res.status(400).send({
-//     isSuccess: 0,
-//     message: `A ${isTemp}user account with this email already exists: ${duplicateKey}`
-//   });
-// }
