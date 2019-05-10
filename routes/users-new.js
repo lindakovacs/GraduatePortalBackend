@@ -68,7 +68,7 @@ router.post("/", async (req, res, next) => {
           <p>Your temporary password is:</p>
           <p><strong>${password}</strong></p>
           <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
-          <p>Please visit this <a href="${req.headers.host}">link</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
+          <p>Please visit this <a href="${req.headers.host}/user/reg-form">link</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
           <p>Thank you!</p>
           </body></html>
         `;
