@@ -26,6 +26,7 @@ const serverError = (req, res, next, err) => {
 };
 
 router.post("/", async (req, res, next) => {
+  // Will this be refactored to email address on the front-end?
   const { username, password } = req.body;
   
   if (username === undefined || password === undefined) {
@@ -41,7 +42,7 @@ router.post("/", async (req, res, next) => {
 
   try {
 
-    const user = await User.findOne({ username: username });
+    const user = await User.findOne({ email: username }).populate("graduate");
 
     // Invalid username
     if (!user) return invalidResponse(req, res, next);
@@ -58,6 +59,9 @@ router.post("/", async (req, res, next) => {
         return res.status(200).send({
           isSuccess: 1,
           message: "Success",
+          isGrad: user.isGrad,
+          graduateId:
+            user.graduate && user.graduate._id ? user.graduate._id : "",
           token
         });
         // Invalid password
