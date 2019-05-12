@@ -18,9 +18,7 @@ const tempUserSchema = new mongoose.Schema(
     expireAt: {
       type: Date,
       default: Date.now,
-      // index: { expires: "48h" },
-      // TODO: Delete the "1m" option and uncomment "48h" line.
-      index: { expires: "1m" },
+      index: { expires: "48h" }
     }
   },
   { timestamps: true }
