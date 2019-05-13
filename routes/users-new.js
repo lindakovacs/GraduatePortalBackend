@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
+const dns = require("dns");
+
 const bcrypt = require("bcrypt");
 
 const methodNotAllowed = require("../errors/methodNotAllowed");
@@ -11,6 +13,24 @@ const { auth, authErrorHandler } = require("../middleware/auth");
 const TempUser = require("../models/tempUser");
 const User = require("../models/user");
 
+
+const arrayToString = arr => {
+  if (arr.length > 1) {
+    return arr.slice(0, -1).join(", ") + " and " + arr.slice(-1);
+  } else {
+    return arr.join("");
+  }
+};
+
+const validateDomainName = emailAddress => {
+  const hostName = emailAddress.split("@")[1];
+  return new Promise(resolve => {
+    dns.lookup(hostName, err => {
+      resolve({ isValid: !err });
+    });
+  });
+};
+
 router.use(auth);
 router.use(authErrorHandler);
 
@@ -20,6 +40,7 @@ router.post("/", async (req, res, next) => {
 
   try {
 
+    // Validate request data.
     let inputErrMsg;
     switch (true) {
       case !emails :
@@ -45,6 +66,7 @@ router.post("/", async (req, res, next) => {
       throw error;
     }
 
+
     // Authorize user as an admin.
     const user = await User.findOne({ _id: req.user.sub });
     if (user.isGrad) {
@@ -59,21 +81,33 @@ router.post("/", async (req, res, next) => {
       const userExists = await User.findOne({ email });
       if (userExists) dupeEmails.push(email);
     }
-    let dupeEmailsStr;
-    if (dupeEmails.length > 1) {
-      dupeEmailsStr =
-        dupeEmails.slice(0, -1).join(", ") + " and " + dupeEmails.slice(-1);
-    } else {
-      dupeEmailsStr = dupeEmails.join("");
+    console.log("dupeEmails:", dupeEmails);
+    let dupeEmailsStr = arrayToString(dupeEmails);
+    const nonDupeEmails = emails.filter(email => !(dupeEmails.includes(email)));
+
+    // Validate email format and domain existence. 
+    const invalidEmails = [];
+    for (let email of nonDupeEmails) {
+      const emailFormatRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      if (!emailFormatRegex.test(email)) {
+        invalidEmails.push(email);
+      } else {
+        const domainName = await validateDomainName(email);
+        if (!domainName.isValid) {
+          invalidEmails.push(email);
+        }
+      }
     }
+    console.log("invalidEmails:", invalidEmails);
+    let invalidEmailsStr = arrayToString(invalidEmails);
+    const validEmails = nonDupeEmails.filter(email => !(invalidEmails.includes(email)));
 
-    const updatedEmails = emails.filter(email => !(dupeEmails.includes(email)));
 
-    // Create users only for emails not already existing in users database.
+    // Create users only for valid emails not already existing in users database.
     // Send custom grad/admin messages. If the email already
     // exists in the tempUsers database the old temp user will be replaced.
     // Temporary users are automatically deleted from the database in 48 hrs.
-    for (const email of updatedEmails) {
+    for (const email of validEmails) {
       const password = Math.random()
         .toString(36)
         .slice(-8);
@@ -90,13 +124,20 @@ router.post("/", async (req, res, next) => {
 
       if (isGrad) {
         const subject = "Invitation to join the AlbanyCanCode Graduate Portal";
+        const text = `
+          Hello, AlbanyCanCode alum!
+          You're invited to create a profile for the AlbanyCanCode graduate portal. The portal serves as a resource for local employers to view profiles, download resumes and visit links of ACC graduates
+          Your temporary password is: 
+          ${password}
+          This password will expire in 48 hours.
+          Please visit http://${req.headers.host}/user/reg-form to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.
+          Thank you! 
+        `;
         const html = `
-          <!DOCTYPE html>
-          <html><head><meta charset="utf-8"></head><body>
           <p>Hello, AlbanyCanCode alum!</p>
           <p>You're invited to create a profile for the AlbanyCanCode graduate portal. The portal serves as a resource for local employers to view profiles, download resumes and visit links of ACC graduates.</p>
           <p>Your temporary password is:</p>
-          <p><strong>${password}</strong></p>
+          <h3>${password}</h3>
           <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
           <p>Please visit this link: <a href="http://${
             req.headers.host
@@ -104,19 +145,25 @@ router.post("/", async (req, res, next) => {
             req.headers.host
           }/user/reg-form</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
           <p>Thank you!</p>
-          </body></html>
         `;
-        const mailInfo = await sendEmail(email, subject, html);
+        const mailInfo = await sendEmail(email, subject, text, html);
         console.log("Message sent: %s", mailInfo.messageId);
       } else {
         const subject = "Login to your AlbanyCanCode account";
+        const text = `
+          Hello, AlbanyCanCode Admin
+          Please activate your admin account for the AlbanyCanCode graduate portal.
+          Your temporary password is: 
+          ${password}
+          This password will expire in 48 hours.
+          Please visit http://${req.headers.host}/user/reg-form to login with your temporary password and activate your account.
+          Thank you! 
+        `;
         const html = `
-          <!DOCTYPE html>
-          <html><head><meta charset="utf-8"></head><body>
           <p>Hello, AlbanyCanCode admin!</p>
           <p>Please activate your admin account for the AlbanyCanCode graduate portal.</p>
           <p>Your temporary password is:</p>
-          <p><strong>${password}</strong></p>
+          <h3>${password}</h3>
           <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
           <p>Please visit this link: <a href="http://${
             req.headers.host
@@ -124,18 +171,20 @@ router.post("/", async (req, res, next) => {
             req.headers.host
           }/user/reg-form</a> to login with your temporary password and activate your account.</p>
           <p>Thank you!</p>
-          </body></html>
         `;
-        const mailInfo = await sendEmail(email, subject, html);
+        const mailInfo = await sendEmail(email, subject, text, html);
         console.log("Message sent: %s", mailInfo.messageId);
       }
     }
 
+    let invalidEmailsStrMssg = invalidEmailsStr ? `The following emails have either an invalid format or a domain that doesn't exist: ${invalidEmailsStr}. ` : "";
+    let dupeEmailsStrMssg = dupeEmailsStr ? `We skipped over these people because they already have a user account: ${dupeEmailsStr}. If they do not have a graduate profile already, instruct them to go to http://grads.albanycancode.org and create one.` : "";
+
     res.setHeader("Content-Type", "application/json");
     res.status(200).send({
       success: 1,
-      retMessage: dupeEmailsStr
-        ? `Pst! We sent out an email to every address except for the following: ${dupeEmailsStr}. We skipped over these people because they already have a user account. If they do not have a graduate profile already, instruct them to go to http://grads.albanycancode.org and create one.`
+      retMessage: (dupeEmailsStr || invalidEmailsStr)
+        ? `Pst! We sent out an email to everyone with some exceptions. ${invalidEmailsStrMssg}${dupeEmailsStrMssg}`
         : "Success"
     });
   } catch (err) {
