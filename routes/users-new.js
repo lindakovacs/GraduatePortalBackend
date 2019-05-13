@@ -11,42 +11,58 @@ const { auth, authErrorHandler } = require("../middleware/auth");
 const TempUser = require("../models/tempUser");
 const User = require("../models/user");
 
-
 router.use(auth);
 router.use(authErrorHandler);
 
 router.post("/", async (req, res, next) => {
-
   const emails = req.body.emails;
   const isGrad = req.body.isGrad;
+  const userId = req.user.sub;
+  console.log(emails, isGrad, userId);
+
+  if (!emails || !isGrad) {
+    const error = new Error(
+      !emails
+        ? "No emails included in request"
+        : "No value for isGrad included in request"
+    );
+    error.statusCode = 400;
+    throw error;
+  }
 
   try {
-
     // Authorize user as an admin.
     const user = await User.findOne({ _id: req.user.sub });
-    if (user.isGrad)  {
+    if (user.isGrad) {
       const error = new Error("Not authorized");
       error.statusCode = 403;
       throw error;
     }
 
-    // Check whether emails already exist in the users database
-    // before creating new users and sending notifications so that the
-    // email array doesn't get partially processed before an error occurs.
+    // Find and separate out any emails that already exist in users database.
+    const dupeEmails = [];
     for (const email of emails) {
       const userExists = await User.findOne({ email });
-      if (userExists)  {
-        const error = new Error(`A user account with this email already exists: ${email}`);
-        error.statusCode = 400;
-        throw error;
-      }
+      if (userExists) dupeEmails.push(email);
+    }
+    let dupeEmailsStr;
+    if (dupeEmails.length > 1) {
+      dupeEmailsStr =
+        dupeEmails.slice(0, -1).join(", ") + " and " + dupeEmails.slice(-1);
+    } else {
+      dupeEmailsStr = dupeEmails.join("");
     }
 
-    // Create users and send custom grad/admin messages. If the email already
+    emails.filter(email => !dupeEmails.includes(email));
+
+    // Create users only for emails not already existing in users database.
+    // Send custom grad/admin messages. If the email already
     // exists in the tempUsers database the old temp user will be replaced.
     // Temporary users are automatically deleted from the database in 48 hrs.
     for (const email of emails) {
-      const password = Math.random().toString(36).slice(-8);
+      const password = Math.random()
+        .toString(36)
+        .slice(-8);
       const hashedPassword = await bcrypt.hash(password, 12);
 
       let tempUser = await TempUser.findOne({ email });
@@ -57,7 +73,7 @@ router.post("/", async (req, res, next) => {
         isGrad
       });
       await tempUser.save();
-      
+
       if (isGrad) {
         const subject = "Invitation to join the AlbanyCanCode Graduate Portal";
         const html = `
@@ -68,27 +84,28 @@ router.post("/", async (req, res, next) => {
           <p>Your temporary password is:</p>
           <p><strong>${password}</strong></p>
           <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
-          <p>Please visit this <a href="${req.headers.host}/user/reg-form">link</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
+          <p>Please visit this <a href="http://${
+            req.headers.host
+          }/user/reg-form">link</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
           <p>Thank you!</p>
           </body></html>
         `;
         const mailInfo = await sendEmail(email, subject, html);
         console.log("Message sent: %s", mailInfo.messageId);
-
       } else {
         const subject = "Login to your AlbanyCanCode account";
         const html = `
           <!DOCTYPE html>
           <html><head><meta charset="utf-8"></head><body>
-          <form action="localhost:7003/api/graduates" method="GET" target="_blank">
           <p>Hello, AlbanyCanCode admin!</p>
           <p>Please activate your admin account for the AlbanyCanCode graduate portal.</p>
           <p>Your temporary password is:</p>
           <p><strong>${password}</strong></p>
           <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
-          <p>Please visit this <a href="${req.headers.host}/user/reg-form">link</a> to login with your temporary password and activate your account.</p>
+          <p>Please visit this <a href="http://${
+            req.headers.host
+          }/user/reg-form">link</a> to login with your temporary password and activate your account.</p>
           <p>Thank you!</p>
-          </form>
           </body></html>
         `;
         const mailInfo = await sendEmail(email, subject, html);
@@ -99,19 +116,15 @@ router.post("/", async (req, res, next) => {
     res.setHeader("Content-Type", "application/json");
     res.status(200).send({
       success: 1,
-      retMessage: "Success"
+      retMessage: dupeEmailsStr
+        ? `Pst! We sent out an email to every address except for the following: ${dupeEmailsStr}. We skipped over these people because they already have a user account. If they do not have a graduate profile already, instruct them to go to http://grads.albanycancode.org and create one.`
+        : "Success"
     });
-    
   } catch (err) {
-    switch(err.statusCode) {
+    switch (err.statusCode) {
       case 403:
-        res.status(403).send({
-          isSuccess: 0,
-          message: err.message
-        });
-        break;
       case 400:
-        res.status(400).send({
+        res.status(err.statusCode).send({
           isSuccess: 0,
           message: err.message
         });
@@ -120,7 +133,6 @@ router.post("/", async (req, res, next) => {
         serverError(req, res, next, err);
     }
   }
-
 });
 
 router.all("/", methodNotAllowed);

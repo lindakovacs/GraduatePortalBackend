@@ -8,13 +8,8 @@ const userSchema = new mongoose.Schema(
       required: true
     },
     password: {
-      type: String, 
-      required: true
-    },
-    tempPassword: {
       type: String,
-      required: true,
-      default: ""
+      required: true
     },
     isGrad: {
       type: Boolean,

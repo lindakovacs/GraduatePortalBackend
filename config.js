@@ -17,9 +17,7 @@ const config = {
   s3UploadBucket: env.S3_UPLOAD_BUCKET,
   jwtSecret: env.JWT_SECRET,
   gmailUser: env.GMAIL_USER,
-  gmailPassword: env.GMAIL_PASSWORD,
-  ebUrl: env.EB_URL
+  gmailPassword: env.GMAIL_PASSWORD
 };
 
 module.exports = config;
-
