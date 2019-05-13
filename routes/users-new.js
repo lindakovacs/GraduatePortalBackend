@@ -81,7 +81,6 @@ router.post("/", async (req, res, next) => {
       const userExists = await User.findOne({ email });
       if (userExists) dupeEmails.push(email);
     }
-    console.log("dupeEmails:", dupeEmails);
     let dupeEmailsStr = arrayToString(dupeEmails);
     const nonDupeEmails = emails.filter(email => !(dupeEmails.includes(email)));
 
@@ -98,15 +97,16 @@ router.post("/", async (req, res, next) => {
         }
       }
     }
-    console.log("invalidEmails:", invalidEmails);
     let invalidEmailsStr = arrayToString(invalidEmails);
     const validEmails = nonDupeEmails.filter(email => !(invalidEmails.includes(email)));
+    let validEmailsStr = arrayToString(validEmails);
 
 
     // Create users only for valid emails not already existing in users database.
     // Send custom grad/admin messages. If the email already
     // exists in the tempUsers database the old temp user will be replaced.
     // Temporary users are automatically deleted from the database in 48 hrs.
+    const failedToSend = [];
     for (const email of validEmails) {
       const password = Math.random()
         .toString(36)
@@ -146,8 +146,12 @@ router.post("/", async (req, res, next) => {
           }/user/reg-form</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
           <p>Thank you!</p>
         `;
-        const mailInfo = await sendEmail(email, subject, text, html);
-        console.log("Message sent: %s", mailInfo.messageId);
+        try {
+          const mailInfo = await sendEmail(email, subject, text, html);
+          console.log("Message sent: %s", mailInfo.messageId);
+        } catch (err) {
+          failedToSend.push(email);
+        }
       } else {
         const subject = "Login to your AlbanyCanCode account";
         const text = `
@@ -172,9 +176,19 @@ router.post("/", async (req, res, next) => {
           }/user/reg-form</a> to login with your temporary password and activate your account.</p>
           <p>Thank you!</p>
         `;
-        const mailInfo = await sendEmail(email, subject, text, html);
-        console.log("Message sent: %s", mailInfo.messageId);
+        try {
+          const mailInfo = await sendEmail(email, subject, text, html);
+          console.log("Message sent: %s", mailInfo.messageId);
+        } catch (err) {
+          failedToSend.push(email);
+        }
       }
+    }
+
+    if (failedToSend[0]) {
+      const err = new Error(`Oops! There was a problem sending out emails to the following addresses: ${validEmailsStr}. If no emails are sent, this could be a configuration problem.`);
+      err.statusCode = 501;
+      throw err;
     }
 
     let invalidEmailsStrMssg = invalidEmailsStr ? `The following emails have either an invalid format or a domain that doesn't exist: ${invalidEmailsStr}. ` : "";
@@ -191,6 +205,7 @@ router.post("/", async (req, res, next) => {
     switch (err.statusCode) {
       case 403:
       case 400:
+      case 501:
         res.status(err.statusCode).send({
           isSuccess: 0,
           message: err.message
