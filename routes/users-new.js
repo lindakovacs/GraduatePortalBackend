@@ -121,67 +121,62 @@ router.post("/", async (req, res, next) => {
         isGrad
       });
       await tempUser.save();
-
-      if (isGrad) {
-        const subject = "Invitation to join the AlbanyCanCode Graduate Portal";
-        const text = `
-          Hello, AlbanyCanCode alum!
-          You're invited to create a profile for the AlbanyCanCode graduate portal. The portal serves as a resource for local employers to view profiles, download resumes and visit links of ACC graduates
-          Your temporary password is: 
-          ${password}
-          This password will expire in 48 hours.
-          Please visit http://${req.headers.host}/user/reg-form to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.
-          Thank you! 
-        `;
-        const html = `
-          <p>Hello, AlbanyCanCode alum!</p>
-          <p>You're invited to create a profile for the AlbanyCanCode graduate portal. The portal serves as a resource for local employers to view profiles, download resumes and visit links of ACC graduates.</p>
-          <p>Your temporary password is:</p>
-          <h3>${password}</h3>
-          <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
-          <p>Please visit this link: <a href="http://${
-            req.headers.host
-          }/user/reg-form">http://${
-            req.headers.host
-          }/user/reg-form</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
-          <p>Thank you!</p>
-        `;
-        try {
-          const mailInfo = await sendEmail(email, subject, text, html);
-          console.log("Message sent: %s", mailInfo.messageId);
-        } catch (err) {
-          failedToSend.push(email);
+      
+      try {
+        let subject, text, html;
+        if (isGrad) {
+          subject = "Invitation to join the AlbanyCanCode Graduate Portal";
+          text = `
+            Hello, AlbanyCanCode alum!
+            You're invited to create a profile for the AlbanyCanCode graduate portal. The portal serves as a resource for local employers to view profiles, download resumes and visit links of ACC graduates
+            Your temporary password is: 
+            ${password}
+            This password will expire in 48 hours.
+            Please visit http://${req.headers.host}/user/reg-form to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.
+            Thank you! 
+          `;
+          html = `
+            <p>Hello, AlbanyCanCode alum!</p>
+            <p>You're invited to create a profile for the AlbanyCanCode graduate portal. The portal serves as a resource for local employers to view profiles, download resumes and visit links of ACC graduates.</p>
+            <p>Your temporary password is:</p>
+            <h3>${password}</h3>
+            <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
+            <p>Please visit this link: <a href="http://${
+              req.headers.host
+            }/user/reg-form">http://${
+              req.headers.host
+            }/user/reg-form</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
+            <p>Thank you!</p>
+          `;
+        } else {
+          subject = "Login to your AlbanyCanCode account";
+          text = `
+            Hello, AlbanyCanCode Admin
+            Please activate your admin account for the AlbanyCanCode graduate portal.
+            Your temporary password is: 
+            ${password}
+            This password will expire in 48 hours.
+            Please visit http://${req.headers.host}/user/reg-form to login with your temporary password and activate your account.
+            Thank you! 
+          `;
+          html = `
+            <p>Hello, AlbanyCanCode admin!</p>
+            <p>Please activate your admin account for the AlbanyCanCode graduate portal.</p>
+            <p>Your temporary password is:</p>
+            <h3>${password}</h3>
+            <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
+            <p>Please visit this link: <a href="http://${
+              req.headers.host
+            }/user/reg-form">http://${
+              req.headers.host
+            }/user/reg-form</a> to login with your temporary password and activate your account.</p>
+            <p>Thank you!</p>
+          `;
         }
-      } else {
-        const subject = "Login to your AlbanyCanCode account";
-        const text = `
-          Hello, AlbanyCanCode Admin
-          Please activate your admin account for the AlbanyCanCode graduate portal.
-          Your temporary password is: 
-          ${password}
-          This password will expire in 48 hours.
-          Please visit http://${req.headers.host}/user/reg-form to login with your temporary password and activate your account.
-          Thank you! 
-        `;
-        const html = `
-          <p>Hello, AlbanyCanCode admin!</p>
-          <p>Please activate your admin account for the AlbanyCanCode graduate portal.</p>
-          <p>Your temporary password is:</p>
-          <h3>${password}</h3>
-          <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
-          <p>Please visit this link: <a href="http://${
-            req.headers.host
-          }/user/reg-form">http://${
-            req.headers.host
-          }/user/reg-form</a> to login with your temporary password and activate your account.</p>
-          <p>Thank you!</p>
-        `;
-        try {
-          const mailInfo = await sendEmail(email, subject, text, html);
-          console.log("Message sent: %s", mailInfo.messageId);
-        } catch (err) {
-          failedToSend.push(email);
-        }
+        const mailInfo = await sendEmail(email, subject, text, html);
+        console.log("Message sent: %s", mailInfo.messageId);
+      } catch (err) {
+        failedToSend.push(email);
       }
     }
 
