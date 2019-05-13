@@ -17,20 +17,34 @@ router.use(authErrorHandler);
 router.post("/", async (req, res, next) => {
   const emails = req.body.emails;
   const isGrad = req.body.isGrad;
-  const userId = req.user.sub;
-  console.log(emails, isGrad, userId);
-
-  if (!emails || !isGrad) {
-    const error = new Error(
-      !emails
-        ? "No emails included in request"
-        : "No value for isGrad included in request"
-    );
-    error.statusCode = 400;
-    throw error;
-  }
 
   try {
+
+    let inputErrMsg;
+    switch (true) {
+      case !emails :
+      case !emails[0] :
+        inputErrMsg = "No emails included in request";
+        break;
+      case !Array.isArray(emails) :
+        inputErrMsg = "Emails were not sent as an array";
+        break;
+      case !isGrad :
+        inputErrMsg = "No value for isGrad included in request";
+        break;
+      case typeof isGrad !== "boolean" :
+        inputErrMsg = "Value for isGrad was not sent as a boolean";
+        break;
+      default :
+        inputErrMsg = "";
+    }
+
+    if (inputErrMsg) {
+      const error = new Error(inputErrMsg);
+      error.statusCode = 400;
+      throw error;
+    }
+
     // Authorize user as an admin.
     const user = await User.findOne({ _id: req.user.sub });
     if (user.isGrad) {
@@ -53,13 +67,13 @@ router.post("/", async (req, res, next) => {
       dupeEmailsStr = dupeEmails.join("");
     }
 
-    emails.filter(email => !dupeEmails.includes(email));
+    const updatedEmails = emails.filter(email => !(dupeEmails.includes(email)));
 
     // Create users only for emails not already existing in users database.
     // Send custom grad/admin messages. If the email already
     // exists in the tempUsers database the old temp user will be replaced.
     // Temporary users are automatically deleted from the database in 48 hrs.
-    for (const email of emails) {
+    for (const email of updatedEmails) {
       const password = Math.random()
         .toString(36)
         .slice(-8);
@@ -84,9 +98,11 @@ router.post("/", async (req, res, next) => {
           <p>Your temporary password is:</p>
           <p><strong>${password}</strong></p>
           <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
-          <p>Please visit this <a href="http://${
+          <p>Please visit this link: <a href="http://${
             req.headers.host
-          }/user/reg-form">link</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
+          }/user/reg-form">http://${
+            req.headers.host
+          }/user/reg-form</a> to login with your temporary password and activate your account. You will then be directed to a form to create your new profile.</p>
           <p>Thank you!</p>
           </body></html>
         `;
@@ -102,9 +118,11 @@ router.post("/", async (req, res, next) => {
           <p>Your temporary password is:</p>
           <p><strong>${password}</strong></p>
           <p><small><em>NOTE: This password will expire in 48 hours.</em></small></p>
-          <p>Please visit this <a href="http://${
+          <p>Please visit this link: <a href="http://${
             req.headers.host
-          }/user/reg-form">link</a> to login with your temporary password and activate your account.</p>
+          }/user/reg-form">http://${
+            req.headers.host
+          }/user/reg-form</a> to login with your temporary password and activate your account.</p>
           <p>Thank you!</p>
           </body></html>
         `;
