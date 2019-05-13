@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const formData = require("express-form-data");
 const mongoose = require("mongoose");
 
+const dataVisualization = require("./routes/dataVisualization");
 const indexRouter = require("./routes/index");
 const graduatesRouter = require("./routes/graduates");
 const graduatesNewRouter = require("./routes/graduates-new");
@@ -22,8 +23,12 @@ mongoose.connect(config.mongoUri, { useNewUrlParser: true });
 const db = mongoose.connection;
 // TODO: Figure out how to send a response to the client if connection fails immediately.
 db.on("error", err => console.log(err));
-db.on("connected", () => console.log("Successfully connected to the database."));
-db.on("disconnected", () => console.log("Successfully disconnected from the database."));
+db.on("connected", () =>
+  console.log("Successfully connected to the database.")
+);
+db.on("disconnected", () =>
+  console.log("Successfully disconnected from the database.")
+);
 // Closes open connection when process is ended.
 process.on("SIGINT", () => {
   db.close(() => {
@@ -49,9 +54,10 @@ app.use("/api/graduates", graduatesRouter);
 app.use("/api/login", loginRouter);
 app.use("/api/upload/", uploadRouter);
 app.use("/api/download/resumes", downloadResumesRouter);
+app.use("/api/graduates/dataVisualization", dataVisualization);
+
 app.use("/api", generalApiRouter);
 app.use("/", indexRouter);
-
 // Handles all routes so you do not get a not found error
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
