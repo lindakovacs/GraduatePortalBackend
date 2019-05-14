@@ -35,8 +35,8 @@ router.use(auth);
 router.use(authErrorHandler);
 
 router.post("/", async (req, res, next) => {
-  const emails = req.body.emails;
-  const isGrad = req.body.isGrad;
+
+  const { emails, isGrad } = req.body;
 
   try {
 
@@ -185,8 +185,12 @@ router.post("/", async (req, res, next) => {
       throw err;
     }
 
-    let invalidEmailsStrMssg = invalidEmailsStr ? `The following emails have either an invalid format or a domain that doesn't exist: ${invalidEmailsStr}. ` : "";
-    let dupeEmailsStrMssg = dupeEmailsStr ? `We skipped over these people because they already have a user account: ${dupeEmailsStr}. If they do not have a graduate profile already, instruct them to go to http://grads.albanycancode.org and create one.` : "";
+    let invalidEmailsStrMssg = invalidEmailsStr 
+      ? `The following emails have either an invalid format or a domain that doesn't exist: ${invalidEmailsStr}. ` 
+      : "";
+    let dupeEmailsStrMssg = dupeEmailsStr 
+      ? `We skipped over these people because they already have a user account: ${dupeEmailsStr}. If they do not have a graduate profile already, instruct them to go to http://grads.albanycancode.org and create one.` 
+      : "";
 
     res.setHeader("Content-Type", "application/json");
     res.status(200).send({
