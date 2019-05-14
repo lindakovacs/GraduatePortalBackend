@@ -16,6 +16,7 @@ const graduateSchema = new mongoose.Schema({
     website: { type: String, default: ""},
   },
   skills: [{ type: String, default: "" }], // arrays automatically default to []
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
 });
 
 module.exports = mongoose.model("Graduate", graduateSchema);

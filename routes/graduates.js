@@ -11,14 +11,13 @@ router.get("/", async (req, res, next) => {
 
   try {
 
-    // TODO: Figure out a way to get user so we can access user.email
-
-    const profiles = await Graduate.find();
+    const profiles = await Graduate.find().populate("user");
 
     const updatedProfiles = profiles.map(grad => {
       const newGrad = { ...grad.toObject() };
       newGrad._id = grad._id.toString();
-      return grad;
+      if (grad.user) newGrad.links.email = grad.user.email;
+      return newGrad;
     });
 
     res.status(200).send({
