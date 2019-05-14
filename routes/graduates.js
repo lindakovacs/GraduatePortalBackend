@@ -10,7 +10,11 @@ const Graduate = require("../models/graduate");
 router.get("/", async (req, res, next) => {
 
   try {
+
+    // TODO: Figure out a way to get user so we can access user.email
+
     const profiles = await Graduate.find();
+
     const updatedProfiles = profiles.map(grad => {
       const newGrad = { ...grad.toObject() };
       newGrad._id = grad._id.toString();

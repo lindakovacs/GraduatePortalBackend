@@ -66,7 +66,6 @@ router.post("/", async (req, res, next) => {
       throw error;
     }
 
-
     // Authorize user as an admin.
     const user = await User.findOne({ _id: req.user.sub });
     if (user.isGrad) {
