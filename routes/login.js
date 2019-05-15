@@ -41,8 +41,7 @@ router.post("/", async (req, res, next) => {
   // TODO figure out how to handle error without whole app crashing
 
   try {
-
-    const user = await User.findOne({ email: username }).populate("graduate");
+    const user = await User.findOne({ email: username });
 
     // Invalid username
     if (!user) return invalidResponse(req, res, next);
@@ -60,8 +59,7 @@ router.post("/", async (req, res, next) => {
           isSuccess: 1,
           message: "Success",
           isGrad: user.isGrad,
-          graduateId:
-            user.graduate && user.graduate._id ? user.graduate._id : "",
+          graduateId: user.graduate ? user.graduate.toString() : "",
           token
         });
         // Invalid password

@@ -14,7 +14,7 @@ const User = require("../models/user");
 const invalidResponse = (req, res, next) => {
   res.status(401).send({
     isSuccess: 0,
-    message: "Invalid username or password",
+    message: "Invalid email or password",
     token: ""
   });
 };
@@ -22,13 +22,12 @@ const invalidResponse = (req, res, next) => {
 router.post("/", async (req, res, next) => {
   const { email, password } = req.body;
 
-  if (email === undefined || password === undefined) {
-    res.status(400).send({
+  if (typeof email !== "string" || typeof password !== "string") {
+    return res.status(400).send({
       isSuccess: 0,
       message: "Invalid request",
       token: ""
     });
-    throw new Error("Invalid request");
   }
   try {
     // Validate against temp user
