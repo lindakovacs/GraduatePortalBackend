@@ -11,7 +11,7 @@ const normalizeUrls = (...urlInputs) => {
       if (!url) return url;
 
       if (!url.startsWith("https://") && !url.startsWith("http://")) {
-        // The following line is based on the assumption that the URL will resolve using https.
+        // The following line is based on the assumption that the URL will resolve using http.
         // Ideally, after all checks pass, the URL should be pinged to verify the correct protocol.
         url = `http://${url}`;
       }
