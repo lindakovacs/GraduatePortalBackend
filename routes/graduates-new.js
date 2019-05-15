@@ -41,19 +41,8 @@ router.post("/", async (req, res, next) => {
 
   try {
 
-    // TODO: Move the email property from the "links" object. MongoDB can't match an
-    // an individualy property in a nested object - it must match the entire object.
-    // The logic used below could result in multiple graduate profiles with the same email.
-
-    // Check to see if a graduate profile already exists with the supplied email (must match entire links object).
-    const profileAlreadyExists = await Graduate.findOne({ 
-      links: { 
-        email: grad.links.email,
-        github: grad.links.github,
-        linkedin: grad.links.linkedin,
-        website: grad.links.website
-      } 
-    });
+    // Check to see if a graduate profile already exists with the supplied email.
+    const profileAlreadyExists = await Graduate.findOne({ "links.email": `${grad.links.email}` });
     if (profileAlreadyExists) {
       const error = new Error(`A graduate profile already exists with this email: ${grad.links.email}.`);
       error.statusCode = 400;
