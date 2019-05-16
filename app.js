@@ -13,12 +13,17 @@ const graduatesRouter = require("./routes/graduates");
 const graduatesNewRouter = require("./routes/graduates-new");
 const graduatesEditRouter = require("./routes/graduates-edit");
 const loginRouter = require("./routes/login");
+const newUserRouter = require("./routes/users-new");
+const userRegFormRouter = require("./routes/user-regForm");
 const uploadRouter = require("./routes/upload");
 const downloadResumesRouter = require("./routes/downloadResumes");
 const generalApiRouter = require("./routes/generalApi");
 
 // This will open a MongoDB connection to be used throughout all routes.
-mongoose.connect(config.mongoUri, { useNewUrlParser: true });
+mongoose.connect(config.mongoUri, { 
+  useNewUrlParser: true,
+  useCreateIndex: true
+});
 const db = mongoose.connection;
 // TODO: Figure out how to send a response to the client if connection fails immediately.
 db.on("error", err => console.log(err));
@@ -47,6 +52,8 @@ app.use("/api/graduates/new", graduatesNewRouter);
 app.use("/api/graduates/edit", graduatesEditRouter);
 app.use("/api/graduates", graduatesRouter);
 app.use("/api/login", loginRouter);
+app.use("/api/users/new", newUserRouter);
+app.use("/api/user/reg-form", userRegFormRouter);
 app.use("/api/upload/", uploadRouter);
 app.use("/api/download/resumes", downloadResumesRouter);
 app.use("/api", generalApiRouter);

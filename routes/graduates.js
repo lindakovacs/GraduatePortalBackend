@@ -10,11 +10,14 @@ const Graduate = require("../models/graduate");
 router.get("/", async (req, res, next) => {
 
   try {
-    const profiles = await Graduate.find();
+
+    const profiles = await Graduate.find().populate("user");
+
     const updatedProfiles = profiles.map(grad => {
-      let gradId = grad._id.toString();
-      grad._id = gradId;
-      return grad;
+      const newGrad = { ...grad.toObject() };
+      newGrad._id = grad._id.toString();
+      if (grad.user) newGrad.links.email = grad.user.email;
+      return newGrad;
     });
 
     res.status(200).send({

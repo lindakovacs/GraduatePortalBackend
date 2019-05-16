@@ -1,27 +1,20 @@
 const express = require("express");
 const router = express.Router();
 
-const mongoose = require("mongoose");
-
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
 const { auth, authErrorHandler } = require("../middleware/auth");
 const normalizeUrls = require("../services/normalizeUrls");
 
 const Graduate = require("../models/graduate");
+const User = require("../models/user");
 
 
 router.use(auth);
 router.use(authErrorHandler);
 
 router.post("/", async (req, res, next) => {
-
-  // TODO: Add userId to request in auth.js.
-  // const user = req.body.userId;
-
-  // TODO: Remove this code once we have a user on the request
-  const userId = mongoose.Types.ObjectId();
-
+  
   let [github, linkedin, website] = normalizeUrls(
     req.body.github,
     req.body.linkedin,
@@ -43,29 +36,31 @@ router.post("/", async (req, res, next) => {
       linkedin,
       website
     },
-    skills: req.body.skills,
-    // TODO: Add logic to make this the ID for the authorized user.
-    userId
+    skills: req.body.skills
   });
 
   try {
-    // TODO: Add userId to graduate here??
-    // TODO: Add graduateId to user if he/she is a graduate.
-    // .then(result => Graduate.findOne({ user: user._id }))
-    // .then(graduate => {
-    //   user.graduateId = graduate._id;
-    //   return graduate;
-    // })
-    // .then(graduate => {
-    //   res.setHeader("Content-Type", "application/json");
-    //   res.status(200).send({
-    //     success: 1,
-    //     retMessage: "Success",
-    //     graduateId: graduate._id
-    //   });
-    // })
-    await grad.save();
-    const graduate = await Graduate.findOne({ userId });
+
+    // Check to see if a graduate profile already exists with the supplied email.
+    const profileAlreadyExists = await Graduate.findOne({ "links.email": `${grad.links.email}` });
+    if (profileAlreadyExists) {
+      const error = new Error(`A graduate profile already exists with this email: ${grad.links.email}.`);
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Add a "user" property if graduate is already a user. If the logged-in user
+    // is a grad then this is the user ID that gets added. Otherwise we try to find
+    // a user by matching the email from the form to one in the users collection.
+    const loggedInUser = await User.findOne({ _id: req.user.sub });
+    if (loggedInUser.isGrad) {
+      grad.user = loggedInUser._id.toString();
+    } else {
+      const gradUser = await User.findOne({ email: grad.links.email });
+      if (gradUser) grad.user = gradUser._id.toString();
+    }
+
+    const graduate = await grad.save();
     const graduateId = graduate._id.toString();
 
     res.setHeader("Content-Type", "application/json");
@@ -76,7 +71,12 @@ router.post("/", async (req, res, next) => {
     });
 
   } catch (err) {
-    serverError(req, res, next, err);
+    if (err.statusCode === 400) {
+      res.status(err.statusCode).send({
+        isSuccess: 0,
+        message: err.message
+      });
+    } else serverError(req, res, next, err);
   }
 });
 
