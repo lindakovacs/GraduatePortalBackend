@@ -110,13 +110,19 @@ router.get("/", (req, res, next) => {
 
 mapData = tableData => {
   const header = tableData[0];
-  const results = tableData.map(data => {
-    const obj = data.reduce((acc, item, index) => {
-      acc[header[index]] = item;
-      return acc;
-    }, {});
-    return obj;
-  });
+  const results = tableData
+    .map(data => {
+      const obj = data.reduce((acc, item, index) => {
+        acc[header[index]] = item;
+        return acc;
+      }, {});
+      return obj;
+    })
+    .filter((item, index) => {
+      if (index > 0) {
+        return item;
+      }
+    });
 
   return results;
 };

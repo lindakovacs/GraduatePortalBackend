@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 const formData = require("express-form-data");
 const mongoose = require("mongoose");
 
-const dataVisualization = require("./routes/dataVisualization");
+const dataVisualization = require("./routes/data-visualization");
 const indexRouter = require("./routes/index");
 const graduatesRouter = require("./routes/graduates");
 const graduatesNewRouter = require("./routes/graduates-new");
@@ -54,7 +54,7 @@ app.use("/api/graduates", graduatesRouter);
 app.use("/api/login", loginRouter);
 app.use("/api/upload/", uploadRouter);
 app.use("/api/download/resumes", downloadResumesRouter);
-app.use("/api/graduates/dataVisualization", dataVisualization);
+app.use("/api/graduates/data-visualization", dataVisualization);
 
 app.use("/api", generalApiRouter);
 app.use("/", indexRouter);
