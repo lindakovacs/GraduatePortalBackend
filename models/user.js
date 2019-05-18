@@ -11,10 +11,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    passwordResetToken: {
-      type: String,
-      default: ""
-    },
     isGrad: {
       type: Boolean,
       required: true
