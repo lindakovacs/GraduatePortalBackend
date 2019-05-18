@@ -18,6 +18,7 @@ const userRegFormRouter = require("./routes/user-regForm");
 const uploadRouter = require("./routes/upload");
 const downloadResumesRouter = require("./routes/downloadResumes");
 const generalApiRouter = require("./routes/generalApi");
+const userForgotPasswordRouter = require("./routes/forgot-password");
 
 // This will open a MongoDB connection to be used throughout all routes.
 mongoose.connect(config.mongoUri, { 
@@ -54,6 +55,7 @@ app.use("/api/graduates", graduatesRouter);
 app.use("/api/login", loginRouter);
 app.use("/api/users/new", newUserRouter);
 app.use("/api/user/reg-form", userRegFormRouter);
+app.use("/api/user/forgot-password", userForgotPasswordRouter);
 app.use("/api/upload/", uploadRouter);
 app.use("/api/download/resumes", downloadResumesRouter);
 app.use("/api", generalApiRouter);
