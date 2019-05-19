@@ -54,14 +54,20 @@ router.post("/", async (req, res, next) => {
     // a user by matching the email from the form to one in the users collection.
     const loggedInUser = await User.findOne({ _id: req.user.sub });
     if (loggedInUser.isGrad) {
-      grad.user = loggedInUser._id.toString();
+      grad.user = loggedInUser._id;
     } else {
       const gradUser = await User.findOne({ email: grad.links.email });
-      if (gradUser) grad.user = gradUser._id.toString();
+      if (gradUser) grad.user = gradUser._id;
     }
 
     const graduate = await grad.save();
-    const graduateId = graduate._id.toString();
+    const graduateId = graduate._id;
+
+    if (grad.user) {
+      const user = await User.findOne({ _id: grad.user });
+      user.graduate = graduateId;
+      await user.save();
+    }
 
     res.setHeader("Content-Type", "application/json");
     res.status(200).send({

@@ -50,7 +50,7 @@ router.post("/", async (req, res, next) => {
       case !Array.isArray(emails) :
         inputErrMsg = "Emails were not sent as an array";
         break;
-      case !isGrad :
+      case !req.body.isGrad :
         inputErrMsg = "No value for isGrad included in request";
         break;
       case typeof isGrad !== "boolean" :
@@ -68,6 +68,8 @@ router.post("/", async (req, res, next) => {
 
     // Authorize user as an admin.
     const user = await User.findOne({ _id: req.user.sub });
+
+
     if (user.isGrad) {
       const error = new Error("Not authorized");
       error.statusCode = 403;
