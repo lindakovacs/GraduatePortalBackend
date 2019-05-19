@@ -50,7 +50,7 @@ router.post("/", async (req, res, next) => {
       case !Array.isArray(emails) :
         inputErrMsg = "Emails were not sent as an array";
         break;
-      case !req.body.isGrad :
+      case req.body.isGrad === undefined :
         inputErrMsg = "No value for isGrad included in request";
         break;
       case typeof isGrad !== "boolean" :
