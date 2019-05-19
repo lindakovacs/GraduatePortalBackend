@@ -11,9 +11,10 @@ router.get("/", (req, res, next) => {
   // Authenticate with the Google Spreadsheets API.
   doc.useServiceAccountAuth(googleApiCredentials, err => {
     if (err) {
+      console.log(err);
       return res.status(500).send({
         isSuccess: 0,
-        err
+        message: "Oops! An unexpected error occurred"
       });
     }
     doc.getRows(1, (err, rows) => {
@@ -24,9 +25,10 @@ router.get("/", (req, res, next) => {
           data: tableData
         });
       } else {
+        console.log(err);
         return res.status(500).send({
           isSuccess: 0,
-          err
+          message: "Oops! An unexpected error occurred"
         });
       }
     });
