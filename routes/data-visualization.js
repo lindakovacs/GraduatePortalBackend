@@ -5,7 +5,16 @@ const GoogleSpreadsheet = require("google-spreadsheet");
 const { googleSheetApiKey, googleApiCredentials } = require("../config");
 // Create a document object using the ID of the spreadsheet - obtained from its URL.
 
+// TODO killme me and the mock-spreadsheet-data.json file when you get this to work on Elastic Beanstalk
+const data = require("../mock-spreadsheet-data");
+
 router.get("/", (req, res, next) => {
+  // TODO killme me and the mock-spreadsheet-data.json file when you get this to work on Elastic Beanstalk
+  return res.status(200).send({
+    isSuccess: 1,
+    data: data
+  });
+
   const doc = new GoogleSpreadsheet(googleSheetApiKey);
 
   // Authenticate with the Google Spreadsheets API.
