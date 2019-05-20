@@ -2,31 +2,41 @@ const express = require("express");
 const router = express.Router();
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const GoogleSpreadsheet = require("google-spreadsheet");
-const { googleSheetApiKey, googleApiCredentials } = require("../config");
+const getS3File = require("../services/getS3File");
+const {
+  googleSheetApiKey,
+  googleSheetS3Bucket,
+  googleSheetS3CertFile,
+  googleApiCredentials
+} = require("../config");
 // Create a document object using the ID of the spreadsheet - obtained from its URL.
 
-// TODO killme me and the mock-spreadsheet-data.json file when you get this to work on Elastic Beanstalk
-const data = require("../mock-spreadsheet-data");
-
-router.get("/", (req, res, next) => {
-  // TODO killme me and the mock-spreadsheet-data.json file when you get this to work on Elastic Beanstalk
-  return res.status(200).send({
-    isSuccess: 1,
-    data: data
-  });
+router.get("/", async (req, res, next) => {
+  const private_key = await getS3File(
+    googleSheetS3Bucket,
+    googleSheetS3CertFile
+  ).then(buffer => buffer.toString("utf-8"));
+  const creds = { ...googleApiCredentials, private_key };
 
   const doc = new GoogleSpreadsheet(googleSheetApiKey);
 
   // Authenticate with the Google Spreadsheets API.
-  doc.useServiceAccountAuth(googleApiCredentials, err => {
+  doc.useServiceAccountAuth(creds, err => {
     if (err) {
-      console.log(err);
       return res.status(500).send({
         isSuccess: 0,
         message: "Oops! An unexpected error occurred"
       });
     }
     doc.getRows(1, (err, rows) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).send({
+          isSuccess: 0,
+          message: "Oops! An unexpected error occurred"
+        });
+      }
+
       const tableData = mapData(rows);
       if (rows.length) {
         return res.status(200).send({
