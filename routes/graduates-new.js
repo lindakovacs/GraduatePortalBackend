@@ -54,7 +54,7 @@ router.post("/", async (req, res, next) => {
     }
 
     // Deny access if the authorized user already has a graduate profile.
-    const authUser = await User.findOne({ _id: req.user.sub });
+    const authUser = await User.findById(req.user.sub);
     if (authUser.graduate) {
       const error = new Error("Action forbidden.");
       error.statusCode = 403;
@@ -72,9 +72,8 @@ router.post("/", async (req, res, next) => {
     // Add a "user" property if graduate is already a user. If the logged-in user
     // is a grad then this is the user ID that gets added. Otherwise we try to find
     // a user by matching the email from the form to one in the users collection.
-    const loggedInUser = await User.findOne({ _id: req.user.sub });
-    if (loggedInUser.isGrad) {
-      grad.user = loggedInUser._id;
+    if (authUser.isGrad) {
+      grad.user = authUser._id;
     } else {
       const gradUser = await User.findOne({ email: grad.links.email });
       if (gradUser) grad.user = gradUser._id;
@@ -84,7 +83,7 @@ router.post("/", async (req, res, next) => {
     const graduateId = graduate._id;
 
     if (grad.user) {
-      const user = await User.findOne({ _id: grad.user });
+      const user = await User.findById(grad.user);
       user.graduate = graduateId;
       await user.save();
     }

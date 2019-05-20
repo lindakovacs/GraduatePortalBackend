@@ -44,7 +44,7 @@ router.put("/", async (req, res, next) => {
       }
     }
 
-    const authUser = await User.findOne({ _id: req.user.sub });
+    const authUser = await User.findById(req.user.sub);
 
     const grad = await Graduate.findById(gradId).populate("user");
 
