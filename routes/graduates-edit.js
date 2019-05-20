@@ -27,19 +27,36 @@ router.put("/", async (req, res, next) => {
   
   try {
 
+    if (!gradId || !gradId.trim()) {
+      const error = new Error("Graduate ID missing from request.");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    switch (true) {
+      case !req.body.firstName.trim():
+      case !req.body.lastName.trim():
+      case (typeof req.body.isActive) !== "boolean":
+      case !req.body.email.trim(): {
+        const error = new Error("Encountered a problem with one or more of the required fields.");
+        error.statusCode = 400;
+        throw error;
+      }
+    }
+
     const authUser = await User.findOne({ _id: req.user.sub });
 
     const grad = await Graduate.findById(gradId).populate("user");
 
     if (authUser.isGrad && (!grad.user || authUser._id.toString() !== grad.user._id.toString())) {
       const error = new Error("Not authorized");
-      error.statusCode = 401;
+      error.statusCode = 403;
       throw error;
     }
 
     grad.firstName = req.body.firstName;
     grad.lastName = req.body.lastName;
-    grad.isActive = !!req.body.isActive;
+    grad.isActive = req.body.isActive;
     grad.phone = req.body.phone;
     grad.story = req.body.story;
     grad.yearOfGrad = req.body.yearOfGrad;
@@ -82,6 +99,7 @@ router.put("/", async (req, res, next) => {
     switch (err.statusCode) {
       case 403:
       case 401:
+      case 400:
         res.status(err.statusCode).send({
           isSuccess: 0,
           message: err.message

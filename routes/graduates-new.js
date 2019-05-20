@@ -41,7 +41,27 @@ router.post("/", async (req, res, next) => {
 
   try {
 
-    // Check to see if a graduate profile already exists with the supplied email.
+    // Validate required fields.
+    switch (true) {
+      case !req.body.firstName.trim():
+      case !req.body.lastName.trim():
+      case (typeof req.body.isActive) !== "boolean":
+      case !req.body.email.trim(): {
+        const error = new Error("Encountered a problem with one or more of the required fields.");
+        error.statusCode = 400;
+        throw error;
+      }
+    }
+
+    // Deny access if the authorized user already has a graduate profile.
+    const authUser = await User.findOne({ _id: req.user.sub });
+    if (authUser.graduate) {
+      const error = new Error("Action forbidden.");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    // Use the supplied email to see if a graduate profile already exists.
     const profileAlreadyExists = await Graduate.findOne({ "links.email": `${grad.links.email}` });
     if (profileAlreadyExists) {
       const error = new Error(`A graduate profile already exists with this email: ${grad.links.email}.`);
@@ -77,12 +97,18 @@ router.post("/", async (req, res, next) => {
     });
 
   } catch (err) {
-    if (err.statusCode === 400) {
-      res.status(err.statusCode).send({
-        isSuccess: 0,
-        message: err.message
-      });
-    } else serverError(req, res, next, err);
+    switch (err.statusCode) {
+      case 403:
+      case 401:
+      case 400:
+        res.status(err.statusCode).send({
+          isSuccess: 0,
+          message: err.message
+        });
+        break;
+      default:
+        serverError(req, res, next, err);
+    }
   }
 });
 
