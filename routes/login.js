@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const config = require("../config");
 
 const User = require("../models/user");
+const Graduate = require("../models/graduate");
 
 const invalidResponse = (req, res, next) => {
   res.status(200).send({
@@ -47,29 +48,30 @@ router.post("/", async (req, res, next) => {
     if (!user) return invalidResponse(req, res, next);
 
     const hash = user.password.toString();
-    bcrypt.compare(password, hash, (err, isMatch) => {
+    bcrypt.compare(password, hash, async (err, isMatch) => {
       if (err) return serverError(req, res, next, err);
 
       if (isMatch) {
         // Valid credentials
+
+        const graduate = await Graduate.findOne({ user: user._id });
+
         // TODO wishlist - tokens should expire
-        // Add user ID to the token payload (timestamp added automatically) 
+        // Add user ID to the token payload (timestamp added automatically)
         const token = jwt.sign({ sub: user._id.toString() }, config.jwtSecret);
         return res.status(200).send({
           isSuccess: 1,
           message: "Success",
           isGrad: user.isGrad,
-          graduateId: user.graduate ? user.graduate.toString() : "",
+          graduateId: graduate ? graduate._id.toString() : "",
           token
         });
         // Invalid password
       } else return invalidResponse(req, res, next);
     });
-
-  } catch(err) {
+  } catch (err) {
     serverError(req, res, next, err);
   }
-
 });
 
 router.all("/", methodNotAllowed);
