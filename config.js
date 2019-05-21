@@ -19,11 +19,13 @@ const config = {
   gmailUser: env.GMAIL_USER,
   gmailPassword: env.GMAIL_PASSWORD,
   googleSheetApiKey: env.GOOGLE_SHEET_API_KEY,
+  googleSheetS3Bucket: env.GOOGLE_SHEET_S3_BUCKET,
+  googleSheetS3CertFile: env.GOOGLE_SHEET_S3_CERT_FILE,
   googleApiCredentials: {
     type: "service_account",
     project_id: env.project_id,
     private_key_id: env.private_key_id,
-    private_key: env.private_key,
+    // You will need to get the "private_key" from S3
     client_email: env.client_email,
     client_id: env.client_id,
     auth_uri: "https://accounts.google.com/o/oauth2/auth",
