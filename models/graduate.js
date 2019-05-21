@@ -10,7 +10,7 @@ const graduateSchema = new mongoose.Schema({
   resume: { type: String, default: ""},
   image: { type: String, default: ""},
   links: {
-    email: { type: String, default: ""},
+    email: { type: String, default: "", required: true},
     github: { type: String, default: ""},
     linkedin: { type: String, default: ""},
     website: { type: String, default: ""},
