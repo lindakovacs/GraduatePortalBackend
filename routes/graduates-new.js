@@ -1,27 +1,20 @@
 const express = require("express");
 const router = express.Router();
 
-const mongoose = require("mongoose");
-
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
 const { auth, authErrorHandler } = require("../middleware/auth");
 const normalizeUrls = require("../services/normalizeUrls");
 
 const Graduate = require("../models/graduate");
+const User = require("../models/user");
 
 
 router.use(auth);
 router.use(authErrorHandler);
 
 router.post("/", async (req, res, next) => {
-
-  // TODO: Add userId to request in auth.js.
-  // const user = req.body.userId;
-
-  // TODO: Remove this code once we have a user on the request
-  const userId = mongoose.Types.ObjectId();
-
+  
   let [github, linkedin, website] = normalizeUrls(
     req.body.github,
     req.body.linkedin,
@@ -43,30 +36,57 @@ router.post("/", async (req, res, next) => {
       linkedin,
       website
     },
-    skills: req.body.skills,
-    // TODO: Add logic to make this the ID for the authorized user.
-    userId
+    skills: req.body.skills
   });
 
   try {
-    // TODO: Add userId to graduate here??
-    // TODO: Add graduateId to user if he/she is a graduate.
-    // .then(result => Graduate.findOne({ user: user._id }))
-    // .then(graduate => {
-    //   user.graduateId = graduate._id;
-    //   return graduate;
-    // })
-    // .then(graduate => {
-    //   res.setHeader("Content-Type", "application/json");
-    //   res.status(200).send({
-    //     success: 1,
-    //     retMessage: "Success",
-    //     graduateId: graduate._id
-    //   });
-    // })
-    await grad.save();
-    const graduate = await Graduate.findOne({ userId });
-    const graduateId = graduate._id.toString();
+
+    // Validate required fields.
+    switch (true) {
+      case !req.body.firstName.trim():
+      case !req.body.lastName.trim():
+      case (typeof req.body.isActive) !== "boolean":
+      case !req.body.email.trim(): {
+        const error = new Error("Encountered a problem with one or more of the required fields.");
+        error.statusCode = 400;
+        throw error;
+      }
+    }
+
+    // Deny access if the authorized user already has a graduate profile.
+    const authUser = await User.findById(req.user.sub);
+    if (authUser.graduate) {
+      const error = new Error("Action forbidden.");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    // Use the supplied email to see if a graduate profile already exists.
+    const profileAlreadyExists = await Graduate.findOne({ "links.email": `${grad.links.email}` });
+    if (profileAlreadyExists) {
+      const error = new Error(`A graduate profile already exists with this email: ${grad.links.email}.`);
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Add a "user" property if graduate is already a user. If the logged-in user
+    // is a grad then this is the user ID that gets added. Otherwise we try to find
+    // a user by matching the email from the form to one in the users collection.
+    if (authUser.isGrad) {
+      grad.user = authUser._id;
+    } else {
+      const gradUser = await User.findOne({ email: grad.links.email });
+      if (gradUser) grad.user = gradUser._id;
+    }
+
+    const graduate = await grad.save();
+    const graduateId = graduate._id;
+
+    if (grad.user) {
+      const user = await User.findById(grad.user);
+      user.graduate = graduateId;
+      await user.save();
+    }
 
     res.setHeader("Content-Type", "application/json");
     res.status(200).send({
@@ -76,7 +96,18 @@ router.post("/", async (req, res, next) => {
     });
 
   } catch (err) {
-    serverError(req, res, next, err);
+    switch (err.statusCode) {
+      case 403:
+      case 401:
+      case 400:
+        res.status(err.statusCode).send({
+          isSuccess: 0,
+          message: err.message
+        });
+        break;
+      default:
+        serverError(req, res, next, err);
+    }
   }
 });
 

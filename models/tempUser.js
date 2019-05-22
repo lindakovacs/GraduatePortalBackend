@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
+const tempUserSchema = new mongoose.Schema(
   {
     email: {
       type: String,
@@ -8,16 +8,20 @@ const userSchema = new mongoose.Schema(
       required: true
     },
     password: {
-      type: String,
+      type: String, 
       required: true
     },
     isGrad: {
       type: Boolean,
       required: true
     },
-    graduate: { type: mongoose.Schema.Types.ObjectId, ref: "Graduate" }
+    expireAt: {
+      type: Date,
+      default: Date.now,
+      index: { expires: "48h" }
+    }
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("TempUser", tempUserSchema);

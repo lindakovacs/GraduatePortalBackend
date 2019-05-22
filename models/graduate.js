@@ -10,14 +10,13 @@ const graduateSchema = new mongoose.Schema({
   resume: { type: String, default: ""},
   image: { type: String, default: ""},
   links: {
-    email: { type: String, default: ""},
+    email: { type: String, default: "", required: true},
     github: { type: String, default: ""},
     linkedin: { type: String, default: ""},
     website: { type: String, default: ""},
   },
   skills: [{ type: String, default: "" }], // arrays automatically default to []
-  // TODO: make userId required?
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
 });
 
 module.exports = mongoose.model("Graduate", graduateSchema);
