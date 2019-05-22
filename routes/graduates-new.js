@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
+const bcrypt = require("bcrypt");
+
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
 const { auth, authErrorHandler } = require("../middleware/auth");
@@ -84,6 +86,10 @@ router.post("/", async (req, res, next) => {
 
     if (grad.user) {
       const user = await User.findById(grad.user);
+      if (req.body.password) {
+        const hashedPassword = await bcrypt.hash(req.body.password, 12);
+        user.password = hashedPassword;
+      }
       user.graduate = graduateId;
       await user.save();
     }
