@@ -23,7 +23,7 @@ const downloadResumesRouter = require("./routes/downloadResumes");
 const generalApiRouter = require("./routes/generalApi");
 
 // This will open a MongoDB connection to be used throughout all routes.
-mongoose.connect(config.mongoUri, { 
+mongoose.connect(config.mongoUri, {
   useNewUrlParser: true,
   useCreateIndex: true
 });
@@ -69,7 +69,14 @@ app.use("/api/graduates/data-visualization", dataVisualization);
 
 app.use("/api", generalApiRouter);
 app.use("/", indexRouter);
+
+// Routes to data visualization project
+app.get("/datavisualization", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "public/datavisualization", "index.html"));
+});
+
 // Handles all routes so you do not get a not found error
+// and will go to graduate portal instead
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
