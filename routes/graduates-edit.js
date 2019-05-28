@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
+const bcrypt = require("bcrypt");
+
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const serverError = require("../errors/serverError");
 const { auth, authErrorHandler } = require("../middleware/auth");
@@ -72,9 +74,14 @@ router.put("/", async (req, res, next) => {
     // matches the grad's user email. If it doesn't, make sure there are no
     // other users with the same email before assigning. (MongoDB will check
     // this for us, but we can give a more detailed error message this way.)
-    // Finally, change user email to match grad email (if necessary).
+    // Finally, change user email to match grad email (if necessary). Also 
+    // change password if necessary.
     const gradUser = grad.user;
     if (gradUser) {
+      if (req.body.password) {
+        const hashedPassword = await bcrypt.hash(req.body.password, 12);
+        gradUser.password = hashedPassword;
+      }
       if (gradUser.email !== req.body.email) {
         const userAlreadyExists = await User.findOne({ email: req.body.email });
         if (userAlreadyExists && userAlreadyExists._id.toString() !== gradUser._id.toString()) {
@@ -83,9 +90,9 @@ router.put("/", async (req, res, next) => {
           throw error;
         } else {
           gradUser.email = req.body.email;
-          await gradUser.save();
         }
       }
+      await gradUser.save();
     }
 
     const newGrad = await grad.save();
